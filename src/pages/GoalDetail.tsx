@@ -7,7 +7,6 @@ import type { NostrEvent } from '@nostrify/nostrify';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
-import { useToast } from '@/hooks/useToast';
 import { GOAL_KIND, CHECKIN_KIND, parseGoalEvent, buildGoalRef, formatSats, formatDateKey, type GoalData } from '@/lib/goals';
 import { useGoalCheckins, computeProgress } from '@/hooks/useGoalCheckins';
 import { getRandomQuote } from '@/lib/quotes';
@@ -32,6 +31,7 @@ import {
   Wallet,
   AlertCircle,
   Heart,
+  WifiOff,
 } from 'lucide-react';
 
 export function GoalDetail() {
@@ -39,8 +39,8 @@ export function GoalDetail() {
   const { nostr } = useNostr();
   const { user } = useCurrentUser();
   const { mutate: publishEvent, isPending: isPublishing } = useNostrPublish();
-  const { toast } = useToast();
   const [donateDialogOpen, setDonateDialogOpen] = useState(false);
+  const [lastQuote, setLastQuote] = useState<string | null>(null);
 
   // Fetch goal event
   const {
@@ -109,10 +109,8 @@ export function GoalDetail() {
       },
       {
         onSuccess: () => {
-          toast({
-            title: 'Checked in!',
-            description: getRandomQuote(),
-          });
+          const quote = getRandomQuote();
+          setLastQuote(quote);
         },
       },
     );
@@ -151,6 +149,21 @@ export function GoalDetail() {
     });
   };
 
+  const handleCancelGoal = () => {
+    if (!user || !goal || !goalEvent) return;
+
+    const tags = goalEvent.tags
+      .filter(([n]) => n !== 'status')
+      .concat([['status', 'cancelled']]);
+
+    publishEvent({
+      kind: GOAL_KIND,
+      content: '',
+      tags,
+      created_at: Math.floor(Date.now() / 1000),
+    });
+  };
+
   // Get all dates for the goal period
   const allDates = goal ? getDateRange(goal) : [];
 
@@ -165,12 +178,21 @@ export function GoalDetail() {
   }
 
   if (error || !goal || !goalEvent) {
+    const isRelayError = !!error;
     return (
       <div className="container max-w-2xl mx-auto py-16 px-4 text-center">
-        <XCircle className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-        <h1 className="text-2xl font-bold mb-2">Goal Not Found</h1>
+        {isRelayError ? (
+          <WifiOff className="h-16 w-16 mx-auto text-amber-500 mb-4" />
+        ) : (
+          <XCircle className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+        )}
+        <h1 className="text-2xl font-bold mb-2">
+          {isRelayError ? 'Relay Connection Issue' : 'Goal Not Found'}
+        </h1>
         <p className="text-muted-foreground mb-6">
-          This goal doesn't exist or couldn't be loaded from relays.
+          {isRelayError
+            ? 'Could not reach Nostr relays. Check your connection and try again.'
+            : "This goal doesn't exist or couldn't be loaded from relays."}
         </p>
         <Button asChild variant="outline">
           <Link to="/">
@@ -293,6 +315,15 @@ export function GoalDetail() {
                 <span className="text-sm font-medium text-green-800 dark:text-green-200">
                   You've already checked in today. Great work!
                 </span>
+              </div>
+            )}
+
+            {/* Inline quote card after check-in */}
+            {lastQuote && (
+              <div className="p-3 rounded-lg bg-gradient-to-r from-emerald-500/5 via-teal-500/5 to-cyan-500/5 border border-emerald-500/20">
+                <p className="text-sm text-muted-foreground italic text-center">
+                  "{lastQuote}"
+                </p>
               </div>
             )}
 
@@ -543,13 +574,24 @@ export function GoalDetail() {
               <p className="text-sm text-muted-foreground">
                 {progress.checkedInDays} of {progress.totalDays} check-ins completed.
               </p>
-              <Button
-                className="gap-2"
-                onClick={isComplete ? handleCompleteGoal : handleFailGoal}
-                disabled={isPublishing}
-              >
-                {isPublishing ? 'Finalizing...' : 'Finalize Goal'}
-              </Button>
+              <div className="flex gap-2 justify-center">
+                <Button
+                  className="gap-2"
+                  onClick={isComplete ? handleCompleteGoal : handleFailGoal}
+                  disabled={isPublishing}
+                >
+                  {isPublishing ? 'Finalizing...' : 'Finalize Goal'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCancelGoal}
+                  disabled={isPublishing}
+                  className="text-muted-foreground"
+                >
+                  Cancel Goal
+                </Button>
+              </div>
             </CardContent>
           </Card>
         );

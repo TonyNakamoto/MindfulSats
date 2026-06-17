@@ -17,6 +17,7 @@ import {
   Trophy,
   Leaf,
   Users,
+  WifiOff,
 } from 'lucide-react';
 
 const CATEGORIES = [
@@ -33,7 +34,7 @@ const Index = () => {
   const { user } = useCurrentUser();
   const [activeCategory, setActiveCategory] = useState('all');
   const category = activeCategory === 'all' ? undefined : activeCategory;
-  const { data: goals, isLoading } = useGoalFeed(category);
+  const { data: goals, isLoading, isError } = useGoalFeed(category);
 
   useSeoMeta({
     title: 'MindfulSats — Meditation Accountability on Nostr',
@@ -187,6 +188,15 @@ const Index = () => {
               <GoalCardSkeleton key={i} />
             ))}
           </div>
+        ) : isError ? (
+          <Card className="border-dashed border-amber-500/50">
+            <CardContent className="py-10 px-8 text-center">
+              <WifiOff className="h-10 w-10 mx-auto text-amber-500 mb-3" />
+              <p className="text-muted-foreground max-w-sm mx-auto">
+                Couldn't reach Nostr relays. Check your connection or try again in a moment.
+              </p>
+            </CardContent>
+          </Card>
         ) : goals && goals.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {goals.map(({ goal, event }) => (

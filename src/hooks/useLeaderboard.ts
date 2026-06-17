@@ -21,7 +21,7 @@ export function useLeaderboard() {
     queryKey: ['nostr', 'leaderboard'],
     queryFn: async ({ signal }) => {
       const events: NostrEvent[] = await nostr.query(
-        [{ kinds: [GOAL_KIND], limit: 200 }],
+        [{ kinds: [GOAL_KIND], limit: 500 }],
         { signal },
       );
 
