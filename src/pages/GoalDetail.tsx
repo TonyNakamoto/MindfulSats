@@ -296,8 +296,8 @@ export function GoalDetail() {
               </div>
             )}
 
-            {/* Day grid */}
-            <div className="space-y-2">
+            {/* Day grid — calendar style */}
+            <div className="space-y-4">
               <p className="text-sm font-medium text-muted-foreground">
                 {isWeekly
                   ? 'Check-in History (any day counts)'
@@ -305,43 +305,96 @@ export function GoalDetail() {
                     ? `Check-in History (${goal.days.length} day${goal.days.length > 1 ? 's' : ''}/wk)` 
                     : 'Daily Check-ins'}
               </p>
-              <div className="grid grid-cols-7 gap-1.5">
-                {allDates.map((date) => {
-                  const isChecked = progress.checkedInDates.has(date);
-                  const isFuture = date > formatDateKey(new Date());
-                  const dayOfWeek = new Date(date + 'T00:00:00').getDay();
-                  const isEligible = goal.days.includes(dayOfWeek);
+
+              {(() => {
+                // Group dates by month
+                const months = new Map<string, string[]>();
+                for (const date of allDates) {
+                  const d = new Date(date + 'T00:00:00');
+                  const key = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                  if (!months.has(key)) months.set(key, []);
+                  months.get(key)!.push(date);
+                }
+
+                const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+                return Array.from(months.entries()).map(([monthLabel, dates]) => {
+                  // Find the day-of-week offset for the first day of the month
+                  const firstDate = new Date(dates[0] + 'T00:00:00');
+                  const startPad = firstDate.getDay(); // 0=Sun
+
+                  // Build padded grid: empty cells for offset, then the dates
+                  const padded: (string | null)[] = [
+                    ...Array(startPad).fill(null),
+                    ...dates,
+                  ];
+
                   return (
-                    <div
-                      key={date}
-                      className={`aspect-square rounded-md flex items-center justify-center text-xs transition-colors ${
-                        isChecked
-                          ? 'bg-emerald-500 text-white'
-                          : isFuture
-                            ? isEligible
-                              ? 'bg-secondary/50 text-muted-foreground/50'
-                              : 'bg-secondary/20 text-muted-foreground/30'
-                            : isEligible
-                              ? 'bg-destructive/20 text-destructive'
-                              : 'bg-muted/30 text-muted-foreground/40'
-                      }`}
-                      title={`${date}${!isEligible ? ' (rest day)' : ''}`}
-                    >
-                      {isChecked ? (
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                      ) : (
-                        <span>{new Date(date + 'T00:00:00').getDate()}</span>
-                      )}
+                    <div key={monthLabel} className="space-y-1.5">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        {monthLabel}
+                      </p>
+
+                      {/* Day headers */}
+                      <div className="grid grid-cols-7 gap-1">
+                        {dayHeaders.map((dh) => (
+                          <div
+                            key={dh}
+                            className="text-center text-[10px] text-muted-foreground font-medium py-0.5"
+                          >
+                            {dh}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Calendar grid */}
+                      <div className="grid grid-cols-7 gap-1">
+                        {padded.map((date, i) => {
+                          if (date === null) {
+                            return <div key={`empty-${i}`} className="aspect-square" />;
+                          }
+
+                          const isChecked = progress.checkedInDates.has(date);
+                          const isFuture = date > formatDateKey(new Date());
+                          const dayOfWeek = new Date(date + 'T00:00:00').getDay();
+                          const isEligible = goal.days.includes(dayOfWeek);
+
+                          return (
+                            <div
+                              key={date}
+                              className={`aspect-square rounded-md flex items-center justify-center text-[11px] transition-colors ${
+                                isChecked
+                                  ? 'bg-emerald-500 text-white'
+                                  : isFuture
+                                    ? isEligible
+                                      ? 'bg-secondary/40 text-muted-foreground/60'
+                                      : 'bg-secondary/20 text-muted-foreground/30'
+                                    : isEligible
+                                      ? 'bg-destructive/15 text-destructive'
+                                      : 'bg-muted/30 text-muted-foreground/40'
+                              }`}
+                              title={`${date}${!isEligible ? ' (rest day)' : ''}`}
+                            >
+                              {isChecked ? (
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                              ) : (
+                                <span>{new Date(date + 'T00:00:00').getDate()}</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   );
-                })}
-              </div>
+                });
+              })()}
+
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <span className="w-3 h-3 rounded-sm bg-emerald-500" /> Done
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-sm bg-destructive/20" /> Missed
+                  <span className="w-3 h-3 rounded-sm bg-destructive/15" /> Missed
                 </span>
                 {goal.days.length < 7 && (
                   <span className="flex items-center gap-1">
