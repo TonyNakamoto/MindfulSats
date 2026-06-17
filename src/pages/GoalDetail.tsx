@@ -27,11 +27,9 @@ import {
   Zap,
   Flame,
   CheckCircle2,
+  Calendar,
   Wallet,
   AlertCircle,
-  Trophy,
-  XCircle,
-  Share2,
   Heart,
 } from 'lucide-react';
 
@@ -90,10 +88,11 @@ export function GoalDetail() {
     description: goal?.description || 'Track meditation goals with accountability deposits on Nostr.',
   });
 
-  const handleCheckin = () => {
+  const handleCheckin = (dateKey?: string) => {
     if (!user || !goal || !pubkey) return;
 
     const ref = buildGoalRef(pubkey, goal.id);
+    const checkinDate = dateKey || formatDateKey(new Date());
 
     publishEvent(
       {
@@ -277,7 +276,7 @@ export function GoalDetail() {
             {/* Check-in button */}
             {canCheckin && (
               <Button
-                onClick={handleCheckin}
+                onClick={() => handleCheckin()}
                 disabled={isPublishing}
                 className="w-full gap-2"
                 size="lg"
@@ -295,6 +294,50 @@ export function GoalDetail() {
                 </span>
               </div>
             )}
+
+            {/* Backfill: show missed eligible days (travel/timezone safety) */}
+            {isOwner && goal.status === 'active' && (() => {
+              const todayDate = new Date();
+              const missedDays: string[] = [];
+              const lookback = new Date(todayDate);
+              lookback.setDate(lookback.getDate() - 1); // Start from yesterday
+
+              for (let i = 0; i < 3; i++) {
+                const key = formatDateKey(lookback);
+                const dayOfWeek = lookback.getDay();
+                if (
+                  goal.days.includes(dayOfWeek) &&
+                  !progress.checkedInDates.has(key) &&
+                  key >= formatDateKey(new Date(goal.startDate * 1000))
+                ) {
+                  missedDays.push(key);
+                }
+                lookback.setDate(lookback.getDate() - 1);
+              }
+
+              if (missedDays.length === 0) return null;
+
+              return (
+                <div className="space-y-1.5 pt-1">
+                  <p className="text-xs text-muted-foreground text-center">Missed a day? Backfill:</p>
+                  <div className="flex gap-1.5 justify-center flex-wrap">
+                    {missedDays.map((date) => (
+                      <Button
+                        key={date}
+                        variant="outline"
+                        size="sm"
+                        className="gap-1 text-xs h-7"
+                        onClick={() => handleCheckin(date)}
+                        disabled={isPublishing}
+                      >
+                        <CheckCircle2 className="h-3 w-3" />
+                        {date}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Day grid — calendar style */}
             <div className="space-y-4">
@@ -482,43 +525,34 @@ export function GoalDetail() {
         </Card>
       )}
 
-      {/* Owner actions */}
-      {isOwner && goal.status === 'active' && progress && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="flex gap-3">
-            <Button
-              variant="outline"
-              className="gap-2 flex-1"
-              onClick={handleCompleteGoal}
-              disabled={isPublishing}
-            >
-              <Trophy className="h-4 w-4 text-emerald-500" />
-              Mark Complete
-            </Button>
-            <Button
-              variant="outline"
-              className="gap-2 flex-1"
-              onClick={handleFailGoal}
-              disabled={isPublishing}
-            >
-              <XCircle className="h-4 w-4 text-destructive" />
-              Give Up
-            </Button>
-            <Button variant="ghost" size="icon" asChild>
-              <Link
-                to={`https://snort.social/e/${nip19.neventEncode({ id: goalEvent.id, author: goalEvent.pubkey })}`}
-                target="_blank"
-                rel="noopener noreferrer"
+      {/* Auto-finalize: goal expired but still active */}
+      {isOwner && goal.status === 'active' && progress && (() => {
+        const endDate = new Date((goal.startDate + goal.durationDays * 86400) * 1000);
+        const hasExpired = new Date() >= endDate;
+        if (!hasExpired) return null;
+
+        const isComplete = progress.checkedInDays >= progress.totalDays;
+        return (
+          <Card className={isComplete ? 'border-emerald-500/30' : 'border-destructive/30'}>
+            <CardContent className="py-6 text-center space-y-3">
+              <Calendar className={`h-10 w-10 mx-auto ${isComplete ? 'text-emerald-500' : 'text-destructive'}`} />
+              <h3 className="text-lg font-semibold">
+                {isComplete ? 'Goal Period Ended — Completed!' : 'Goal Period Ended — Not Met'}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {progress.checkedInDays} of {progress.totalDays} check-ins completed.
+              </p>
+              <Button
+                className="gap-2"
+                onClick={isComplete ? handleCompleteGoal : handleFailGoal}
+                disabled={isPublishing}
               >
-                <Share2 className="h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+                {isPublishing ? 'Finalizing...' : 'Finalize Goal'}
+              </Button>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Check-in log */}
       {checkins.length > 0 && (
