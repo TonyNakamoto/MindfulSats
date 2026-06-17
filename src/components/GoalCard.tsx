@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
-import { Target, Clock, Flame, Zap } from 'lucide-react';
+import { Target, Clock, Flame, Zap, User as UserIcon } from 'lucide-react';
 
 interface GoalCardProps {
   goal: GoalData;
@@ -25,8 +25,9 @@ export function GoalCard({ goal, event, progress }: GoalCardProps) {
   const author = useAuthor(event.pubkey);
   const metadata = author.data?.metadata;
   const npub = event.pubkey ? nip19.npubEncode(event.pubkey) : '';
+  const isLoading = author.isLoading;
 
-  const displayName = metadata?.display_name || metadata?.name || npub.slice(0, 12) + '...';
+  const displayName = metadata?.display_name || metadata?.name || (isLoading ? '...' : 'Anonymous');
   const avatarUrl = metadata?.picture;
   const statusVariant =
     goal.status === 'completed' ? 'default' :
@@ -45,7 +46,9 @@ export function GoalCard({ goal, event, progress }: GoalCardProps) {
             <div className="flex items-center gap-2.5 min-w-0">
               <Avatar className="h-8 w-8 shrink-0">
                 <AvatarImage src={avatarUrl} alt={displayName} />
-                <AvatarFallback>{displayName[0]}</AvatarFallback>
+                <AvatarFallback className="text-[10px]">
+                  {avatarUrl ? displayName[0] : <UserIcon className="h-3.5 w-3.5 text-muted-foreground" />}
+                </AvatarFallback>
               </Avatar>
               <div className="min-w-0">
                 <p className="text-sm font-medium truncate leading-tight">{displayName}</p>
@@ -120,26 +123,24 @@ export function GoalCard({ goal, event, progress }: GoalCardProps) {
 export function GoalCardSkeleton() {
   return (
     <Card>
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-3">
-          <Skeleton className="h-10 w-10 rounded-full" />
-          <div className="space-y-1.5">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-3 w-32" />
+      <CardHeader className="pb-1.5">
+        <div className="flex items-center gap-2.5">
+          <Skeleton className="h-8 w-8 rounded-full" />
+          <div className="space-y-1">
+            <Skeleton className="h-3.5 w-20" />
+            <Skeleton className="h-2.5 w-28" />
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="space-y-1.5">
-          <Skeleton className="h-5 w-3/4" />
-          <Skeleton className="h-4 w-full" />
+      <CardContent className="space-y-2">
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-3 w-full" />
+        <div className="flex gap-1.5">
+          <Skeleton className="h-4 w-16 rounded-full" />
+          <Skeleton className="h-4 w-14 rounded-full" />
+          <Skeleton className="h-4 w-20 rounded-full" />
         </div>
-        <div className="flex gap-2">
-          <Skeleton className="h-5 w-20 rounded-full" />
-          <Skeleton className="h-5 w-16 rounded-full" />
-          <Skeleton className="h-5 w-24 rounded-full" />
-        </div>
-        <Skeleton className="h-1.5 w-full" />
+        <Skeleton className="h-1 w-full" />
       </CardContent>
     </Card>
   );

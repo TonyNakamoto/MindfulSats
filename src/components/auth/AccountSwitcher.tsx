@@ -39,8 +39,10 @@ export function AccountSwitcher({ onAddAccountClick }: AccountSwitcherProps) {
             <AvatarFallback>
               {isCurrentUserPending ? (
                 <Skeleton className='size-full rounded-full' />
-              ) : (
+              ) : currentUser.metadata.picture ? (
                 getDisplayName(currentUser).charAt(0)
+              ) : (
+                <UserIcon className='h-4 w-4 text-muted-foreground' />
               )}
             </AvatarFallback>
           </Avatar>
