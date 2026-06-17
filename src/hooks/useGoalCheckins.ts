@@ -48,27 +48,35 @@ export function computeProgress(goal: GoalData, checkins: CheckinData[]): GoalPr
   const checkedInDates = new Set(checkins.map((c) => c.date));
   const today = new Date();
   const start = new Date(goal.startDate * 1000);
-  const end = new Date(start.getTime() + goal.durationDays * 86400000);
 
   const isWeekly = goal.frequency === 'weekly';
+  const isCustom = goal.frequency === 'custom';
+  const activeDays = goal.days.length > 0 ? goal.days : [0, 1, 2, 3, 4, 5, 6];
   const checkedInDays = checkins.length;
-  const totalDays = isWeekly
-    ? goal.target * Math.ceil(goal.durationDays / 7)
-    : goal.durationDays;
 
-  // Calculate elapsed - for weekly, count elapsed weeks * target
+  // Total expected check-ins
+  const numWeeks = Math.ceil(goal.durationDays / 7);
+  const totalDays = isWeekly
+    ? goal.target * numWeeks
+    : isCustom
+      ? activeDays.length * numWeeks
+      : goal.durationDays;
+
+  // Calculate elapsed expected check-ins
   let elapsedExpected = 0;
   const cursor = new Date(start);
   if (isWeekly) {
-    // Weekly: count how many full weeks have elapsed, multiply by target
     const msPerWeek = 7 * 86400000;
     const elapsedMs = Math.min(today.getTime() - start.getTime(), goal.durationDays * 86400000);
     const elapsedWeeks = Math.floor(elapsedMs / msPerWeek);
     elapsedExpected = Math.min(elapsedWeeks * goal.target, totalDays);
   } else {
-    // Daily: count elapsed days
-    while (cursor <= today && elapsedExpected < goal.durationDays) {
-      elapsedExpected++;
+    // Count eligible days from start to today
+    while (cursor <= today && cursor < new Date(start.getTime() + goal.durationDays * 86400000)) {
+      const dayOfWeek = cursor.getDay();
+      if (activeDays.includes(dayOfWeek)) {
+        elapsedExpected++;
+      }
       cursor.setDate(cursor.getDate() + 1);
     }
   }

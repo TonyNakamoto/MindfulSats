@@ -62,7 +62,6 @@ export interface GoalFormData {
   title: string;
   description: string;
   category: string;
-  frequency: 'daily' | 'weekly';
   target: number;
   unit: string;
   durationDays: number;
@@ -74,8 +73,10 @@ export function GoalForm() {
   const { mutate: publishEvent, isPending } = useNostrPublish();
   const { hasNWC, webln } = useWallet();
   const navigate = useNavigate();
-
   const hasWallet = hasNWC || !!webln;
+
+  // Day selection: array of day indices (0=Sun..6=Sat), default all days
+  const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 4, 5, 6, 0]);
 
   const {
     register,
@@ -88,7 +89,6 @@ export function GoalForm() {
       title: '',
       description: '',
       category: 'meditation',
-      frequency: 'daily',
       target: 10,
       unit: 'minutes',
       durationDays: 7,
@@ -98,7 +98,16 @@ export function GoalForm() {
 
   const selectedCategory = watch('category');
   const pledgeSats = watch('pledgeSats');
-  const frequency = watch('frequency');
+  const target = watch('target');
+  const unit = watch('unit');
+  const durationDays = watch('durationDays');
+
+  const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const toggleDay = (day: number) => {
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort()
+    );
+  };
 
   const onSubmit = async (data: GoalFormData) => {
     if (!user) return;
@@ -107,13 +116,18 @@ export function GoalForm() {
     const dTag = `goal-${now}-${Math.random().toString(36).slice(2, 8)}`;
     const pledgeMsats = data.pledgeSats * 1000;
 
+    // Determine frequency from day selection
+    const allDaysSelected = selectedDays.length === 7;
+    const freqValue = allDaysSelected ? 'daily' : 'custom';
+    const daysTag = allDaysSelected ? undefined : selectedDays.join(',');
+
     const tags: string[][] = [
       ['d', dTag],
       ['alt', 'Meditation goal with accountability deposit'],
       ['title', data.title],
       ['t', data.category],
       ['t', 'mental-health'],
-      ['frequency', data.frequency],
+      ['frequency', freqValue],
       ['target', String(data.target)],
       ['unit', data.unit],
       ['duration_days', String(data.durationDays)],
@@ -121,6 +135,10 @@ export function GoalForm() {
       ['start_date', String(now)],
       ['status', 'active'],
     ];
+
+    if (daysTag) {
+      tags.push(['days', daysTag]);
+    }
 
     if (data.description) {
       tags.push(['description', data.description]);
@@ -264,53 +282,63 @@ export function GoalForm() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="frequency">Frequency</Label>
-              <Select
-                onValueChange={(v) => setValue('frequency', v as 'daily' | 'weekly')}
-                defaultValue="daily"
-              >
-                <SelectTrigger id="frequency">
-                  <SelectValue placeholder="Select frequency" />
-                </SelectTrigger>
-                <SelectContent>
-                  {FREQUENCIES.map((f) => (
-                    <SelectItem key={f.value} value={f.value}>
-                      {f.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {/* Day picker */}
+          <div className="space-y-2">
+            <Label>Which days?</Label>
+            <div className="flex gap-1">
+              {dayLabels.map((label, i) => {
+                const isSelected = selectedDays.includes(i);
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => toggleDay(i)}
+                    className={`flex-1 py-2 text-xs font-medium rounded-md border transition-colors ${
+                      isSelected
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-background text-muted-foreground border-border hover:border-primary/40'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
+            <p className="text-xs text-muted-foreground">
+              {selectedDays.length === 7
+                ? 'Every day'
+                : selectedDays.length === 0
+                  ? 'No days selected'
+                  : `${selectedDays.length} day${selectedDays.length > 1 ? 's' : ''} per week · ${dayLabels.filter((_, i) => selectedDays.includes(i)).join(', ')}`}
+            </p>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="durationDays">Duration (days)</Label>
-              <Input
-                id="durationDays"
-                type="number"
-                min={1}
-                max={365}
-                {...register('durationDays', {
-                  required: 'Duration is required',
-                  min: { value: 1, message: 'Must be at least 1 day' },
-                  max: { value: 365, message: 'Max 365 days' },
-                  valueAsNumber: true,
-                })}
-                aria-invalid={!!errors.durationDays}
-              />
-              {errors.durationDays && (
-                <p className="text-sm text-destructive">{errors.durationDays.message}</p>
-              )}
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="durationDays">Duration (days)</Label>
+            <Input
+              id="durationDays"
+              type="number"
+              min={1}
+              max={365}
+              {...register('durationDays', {
+                required: 'Duration is required',
+                min: { value: 1, message: 'Must be at least 1 day' },
+                max: { value: 365, message: 'Max 365 days' },
+                valueAsNumber: true,
+              })}
+              aria-invalid={!!errors.durationDays}
+            />
+            {errors.durationDays && (
+              <p className="text-sm text-destructive">{errors.durationDays.message}</p>
+            )}
           </div>
 
           <div className="flex items-center gap-3 text-sm text-muted-foreground bg-secondary/50 rounded-lg p-3">
             <Calendar className="h-4 w-4 shrink-0" />
             <span>
-              {frequency === 'daily'
-                ? `You'll check in every day for ${watch('durationDays') || '?'} days`
-                : `You'll check in ${watch('target') || '?'} ${watch('unit') || 'times'} per week for ${watch('durationDays') || '?'} days`}
+              {selectedDays.length === 0
+                ? 'Select days above'
+                : `${target || '?'} ${unit || 'units'} on ${selectedDays.length} day${selectedDays.length > 1 ? 's' : ''} per week for ${durationDays || '?'} days`}
             </span>
           </div>
         </CardContent>

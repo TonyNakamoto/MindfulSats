@@ -79,7 +79,7 @@ export function GoalCard({ goal, event, progress }: GoalCardProps) {
             </Badge>
             <Badge variant="secondary" className="text-xs gap-1">
               <Clock className="h-3 w-3" />
-              {goal.frequency} · {goal.durationDays}d
+              {goal.days.length === 7 ? 'daily' : `${goal.days.length}d/wk`} · {goal.durationDays}d
             </Badge>
             {goal.pledgeMsats > 0 && (
               <Badge variant="secondary" className="text-xs gap-1">

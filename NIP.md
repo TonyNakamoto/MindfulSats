@@ -14,7 +14,8 @@ An **addressable** event (replaceable by `pubkey` + `kind` + `d` tag) that defin
 | `alt` | yes | Human-readable description: "Meditation goal with accountability deposit" |
 | `title` | yes | Short title of the goal (e.g., "Meditate 10 minutes daily") |
 | `t` | yes | Category for relay filtering (e.g., "meditation", "mental-health") |
-| `frequency` | yes | One of: "daily", "weekly", "custom" |
+| `days` | no | Comma-separated day indices (0=Sun..6=Sat). Omitted = all 7 days. E.g., "1,2,3,4,5" for weekdays. |
+| `frequency` | yes | One of: "daily" (all 7 days), "weekly" (N sessions per week), "custom" (specific days selected) |
 | `target` | yes | Numeric target value |
 | `unit` | yes | Unit of measure (e.g., "minutes", "sessions", "steps") |
 | `duration_days` | yes | Number of days the goal runs |
@@ -40,7 +41,8 @@ Empty string.
     ["title", "Meditate 10 minutes daily"],
     ["t", "meditation"],
     ["t", "mental-health"],
-    ["frequency", "daily"],
+    ["days", "1,2,3,4,5"],
+    ["frequency", "custom"],
     ["target", "10"],
     ["unit", "minutes"],
     ["duration_days", "7"],

@@ -18,6 +18,8 @@ export interface GoalData {
   categories: string[];
   /** How often the goal repeats */
   frequency: GoalFrequency;
+  /** Selected days of week (0=Sun..6=Sat). Empty = all days. */
+  days: number[];
   /** Numeric target value */
   target: number;
   /** Unit of measure (e.g. "minutes", "sessions") */
@@ -61,6 +63,7 @@ export function parseGoalEvent(event: NostrEvent): GoalData | null {
   const id = tags.find(([n]) => n === 'd')?.[1];
   const title = tags.find(([n]) => n === 'title')?.[1];
   const frequency = tags.find(([n]) => n === 'frequency')?.[1] as GoalFrequency | undefined;
+  const daysStr = tags.find(([n]) => n === 'days')?.[1];
   const targetStr = tags.find(([n]) => n === 'target')?.[1];
   const unit = tags.find(([n]) => n === 'unit')?.[1];
   const durationStr = tags.find(([n]) => n === 'duration_days')?.[1];
@@ -71,7 +74,16 @@ export function parseGoalEvent(event: NostrEvent): GoalData | null {
   const description = tags.find(([n]) => n === 'description')?.[1] ?? '';
   const categories = tags.filter(([n]) => n === 't').map(([, v]) => v);
 
-  if (!id || !title || !frequency || !targetStr || !unit || !durationStr || !startStr || !status) {
+  // Parse days: comma-separated day numbers (0=Sun..6=Sat). Empty = all days.
+  const days = daysStr
+    ? daysStr.split(',').map(Number).filter((n) => n >= 0 && n <= 6)
+    : [0, 1, 2, 3, 4, 5, 6];
+
+  // Compute frequency from days for backwards compat
+  const resolvedFreq: GoalFrequency = frequency
+    || (days.length === 7 ? 'daily' : 'custom');
+
+  if (!id || !title || !targetStr || !unit || !durationStr || !startStr || !status) {
     return null;
   }
 
@@ -89,7 +101,8 @@ export function parseGoalEvent(event: NostrEvent): GoalData | null {
     id,
     title,
     categories,
-    frequency,
+    frequency: resolvedFreq,
+    days,
     target,
     unit,
     durationDays,

@@ -7,8 +7,10 @@ import type { NostrEvent } from '@nostrify/nostrify';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
+import { useToast } from '@/hooks/useToast';
 import { GOAL_KIND, CHECKIN_KIND, parseGoalEvent, buildGoalRef, formatSats, formatDateKey, type GoalData } from '@/lib/goals';
 import { useGoalCheckins, computeProgress } from '@/hooks/useGoalCheckins';
+import { getRandomQuote } from '@/lib/quotes';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +40,7 @@ export function GoalDetail() {
   const { nostr } = useNostr();
   const { user } = useCurrentUser();
   const { mutate: publishEvent, isPending: isPublishing } = useNostrPublish();
+  const { toast } = useToast();
   const [donateDialogOpen, setDonateDialogOpen] = useState(false);
 
   // Fetch goal event
@@ -106,7 +109,10 @@ export function GoalDetail() {
       },
       {
         onSuccess: () => {
-          // Invalidate queries handled by react-query cache key change
+          toast({
+            title: 'Checked in!',
+            description: getRandomQuote(),
+          });
         },
       },
     );
@@ -293,12 +299,18 @@ export function GoalDetail() {
             {/* Day grid */}
             <div className="space-y-2">
               <p className="text-sm font-medium text-muted-foreground">
-                {isWeekly ? 'Check-in History (any day counts)' : 'Daily Check-ins'}
+                {isWeekly
+                  ? 'Check-in History (any day counts)'
+                  : goal.days.length < 7
+                    ? `Check-in History (${goal.days.length} day${goal.days.length > 1 ? 's' : ''}/wk)` 
+                    : 'Daily Check-ins'}
               </p>
               <div className="grid grid-cols-7 gap-1.5">
                 {allDates.map((date) => {
                   const isChecked = progress.checkedInDates.has(date);
                   const isFuture = date > formatDateKey(new Date());
+                  const dayOfWeek = new Date(date + 'T00:00:00').getDay();
+                  const isEligible = goal.days.includes(dayOfWeek);
                   return (
                     <div
                       key={date}
@@ -306,10 +318,14 @@ export function GoalDetail() {
                         isChecked
                           ? 'bg-emerald-500 text-white'
                           : isFuture
-                            ? 'bg-secondary/50 text-muted-foreground/50'
-                            : 'bg-destructive/20 text-destructive'
+                            ? isEligible
+                              ? 'bg-secondary/50 text-muted-foreground/50'
+                              : 'bg-secondary/20 text-muted-foreground/30'
+                            : isEligible
+                              ? 'bg-destructive/20 text-destructive'
+                              : 'bg-muted/30 text-muted-foreground/40'
                       }`}
-                      title={date}
+                      title={`${date}${!isEligible ? ' (rest day)' : ''}`}
                     >
                       {isChecked ? (
                         <CheckCircle2 className="h-3.5 w-3.5" />
@@ -327,6 +343,11 @@ export function GoalDetail() {
                 <span className="flex items-center gap-1">
                   <span className="w-3 h-3 rounded-sm bg-destructive/20" /> Missed
                 </span>
+                {goal.days.length < 7 && (
+                  <span className="flex items-center gap-1">
+                    <span className="w-3 h-3 rounded-sm bg-muted/30" /> Rest day
+                  </span>
+                )}
               </div>
             </div>
           </CardContent>
