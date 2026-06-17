@@ -162,8 +162,8 @@ const Index = () => {
         </div>
 
         {/* Category tabs */}
-        <div className="mb-6 overflow-x-auto pb-2">
-          <div className="flex gap-2 min-w-max">
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               return (
