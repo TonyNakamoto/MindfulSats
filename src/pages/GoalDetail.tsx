@@ -16,6 +16,8 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { WalletModal } from '@/components/WalletModal';
+import { DonateDialog } from '@/components/DonateDialog';
+import { useState } from 'react';
 import {
   ArrowLeft,
   Target,
@@ -23,14 +25,12 @@ import {
   Zap,
   Flame,
   CheckCircle2,
-  Circle,
-  Calendar,
-  Sparkles,
   Wallet,
   AlertCircle,
   Trophy,
   XCircle,
   Share2,
+  Heart,
 } from 'lucide-react';
 
 export function GoalDetail() {
@@ -38,6 +38,7 @@ export function GoalDetail() {
   const { nostr } = useNostr();
   const { user } = useCurrentUser();
   const { mutate: publishEvent, isPending: isPublishing } = useNostrPublish();
+  const [donateDialogOpen, setDonateDialogOpen] = useState(false);
 
   // Fetch goal event
   const {
@@ -344,26 +345,58 @@ export function GoalDetail() {
       {/* Goal failed state */}
       {goal.status === 'failed' && progress && (
         <Card className="border-destructive/30">
-          <CardContent className="py-8 text-center space-y-3">
+          <CardContent className="py-8 text-center space-y-4">
             <XCircle className="h-16 w-16 mx-auto text-destructive" />
             <h2 className="text-2xl font-bold">Goal Not Met</h2>
             <p className="text-muted-foreground">
               You completed {progress.checkedInDays} out of {progress.totalDays} days.
             </p>
+
             {goal.pledgeMsats > 0 && isOwner && (
-              <div className="space-y-3">
-                <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200 dark:bg-amber-950 dark:border-amber-800 max-w-md mx-auto">
+              <div className="space-y-3 max-w-md mx-auto">
+                {/* Pledge reminder */}
+                <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200 dark:bg-amber-950 dark:border-amber-800">
                   <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
-                  <p className="text-sm text-amber-800 dark:text-amber-200">
-                    You pledged {formatSats(goal.pledgeMsats)}. Consider donating to a mental health charity.
+                  <p className="text-sm text-amber-800 dark:text-amber-200 text-left">
+                    You pledged <strong>{formatSats(goal.pledgeMsats)}</strong>.
+                    Donate to a mental health charity to honor your commitment.
+                    Your donation will be verifiable on Nostr.
                   </p>
                 </div>
+
+                {/* Donate button */}
+                <Button
+                  className="w-full gap-2"
+                  size="lg"
+                  onClick={() => setDonateDialogOpen(true)}
+                >
+                  <Heart className="h-4 w-4" />
+                  Donate to Honor Pledge
+                </Button>
+
+                <DonateDialog
+                  open={donateDialogOpen}
+                  onOpenChange={setDonateDialogOpen}
+                  goalEvent={goalEvent}
+                  goalTitle={goal.title}
+                  pledgeSats={Math.floor(goal.pledgeMsats / 1000)}
+                />
+
+                {/* Manual wallet option */}
                 <WalletModal>
-                  <Button variant="outline" className="gap-2">
-                    <Wallet className="h-4 w-4" />
-                    Open Wallet
+                  <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground">
+                    <Wallet className="h-3.5 w-3.5" />
+                    Open Wallet Manually
                   </Button>
                 </WalletModal>
+              </div>
+            )}
+
+            {goal.pledgeMsats > 0 && !isOwner && (
+              <div className="max-w-md mx-auto p-3 rounded-lg bg-muted/50 border">
+                <p className="text-sm text-muted-foreground">
+                  This user pledged <strong>{formatSats(goal.pledgeMsats)}</strong> on this goal.
+                </p>
               </div>
             )}
           </CardContent>
