@@ -56,14 +56,6 @@ const Index = () => {
               <span className="text-xl font-bold tracking-tight">MindfulSats</span>
             </div>
             <div className="flex items-center gap-3">
-              {user && (
-                <Button asChild variant="ghost" size="sm" className="gap-1">
-                  <Link to="/my-goals">
-                    <Target className="h-4 w-4" />
-                    My Goals
-                  </Link>
-                </Button>
-              )}
               <LoginArea className="max-w-44" />
             </div>
           </div>
