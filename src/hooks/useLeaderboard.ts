@@ -74,7 +74,7 @@ export function useLeaderboard() {
           activeGoals: data.active,
           totalSatsPledged: Math.floor(data.pledgedMsats / 1000),
           totalSatsDonated: data.donatedSats,
-          completionRate: data.total > 0
+          completionRate: (data.completed + data.failed) > 0
             ? Math.round((data.completed / (data.completed + data.failed)) * 100)
             : 0,
         }))

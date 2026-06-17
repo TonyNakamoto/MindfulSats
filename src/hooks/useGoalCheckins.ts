@@ -96,7 +96,7 @@ export function computeProgress(goal: GoalData, checkins: CheckinData[]): GoalPr
     if (streakCursor < start) break;
   }
 
-  const percentage = totalDays > 0 ? Math.round((checkedInDays / totalDays) * 100) : 0;
+  const percentage = totalDays > 0 ? Math.min(100, Math.round((checkedInDays / totalDays) * 100)) : 0;
   const isOnTrack = elapsedExpected > 0 ? checkedInDays >= elapsedExpected : true;
 
   return {

@@ -141,8 +141,9 @@ export function DonateDialog({
         // Resolve LNURL from lud16
         const [name, domain] = lud16.split('@');
         const lnurlpUrl = `https://${domain}/.well-known/lnurlp/${name}`;
+        const proxyUrl = `https://proxy.shakespeare.diy/?url=${encodeURIComponent(lnurlpUrl)}`;
 
-        const lnurlpRes = await fetch(lnurlpUrl);
+        const lnurlpRes = await fetch(proxyUrl);
         if (!lnurlpRes.ok) throw new Error('Could not resolve Lightning address');
         const lnurlpData = await lnurlpRes.json();
 

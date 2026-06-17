@@ -25,10 +25,9 @@ export function GoalCard({ goal, event, progress }: GoalCardProps) {
   const author = useAuthor(event.pubkey);
   const metadata = author.data?.metadata;
   const npub = event.pubkey ? nip19.npubEncode(event.pubkey) : '';
-  const isLoading = author.isLoading;
-
-  const displayName = metadata?.display_name || metadata?.name || (isLoading ? '...' : 'Anonymous');
+  const displayName = metadata?.display_name || metadata?.name || (author.isLoading ? '' : 'Anonymous');
   const avatarUrl = metadata?.picture;
+  const hasName = !!metadata?.display_name || !!metadata?.name;
   const statusVariant =
     goal.status === 'completed' ? 'default' :
     goal.status === 'failed' ? 'destructive' :
@@ -45,9 +44,9 @@ export function GoalCard({ goal, event, progress }: GoalCardProps) {
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
               <Avatar className="h-8 w-8 shrink-0">
-                <AvatarImage src={avatarUrl} alt={displayName} />
+                <AvatarImage src={avatarUrl} alt={displayName || 'User'} />
                 <AvatarFallback className="text-[10px]">
-                  {avatarUrl ? displayName[0] : <UserIcon className="h-3.5 w-3.5 text-muted-foreground" />}
+                  {hasName ? (displayName || '?')[0] : <UserIcon className="h-3.5 w-3.5 text-muted-foreground" />}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0">
