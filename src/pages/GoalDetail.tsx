@@ -28,6 +28,7 @@ import {
   Flame,
   CheckCircle2,
   Calendar,
+  Trophy,
   Wallet,
   AlertCircle,
   Heart,
