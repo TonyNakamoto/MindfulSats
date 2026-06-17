@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
+import { useState, useEffect, useRef } from 'react';
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useSeoMeta } from '@unhead/react';
@@ -32,6 +33,7 @@ import {
   AlertCircle,
   Heart,
   WifiOff,
+  Flag,
 } from 'lucide-react';
 
 export function GoalDetail() {
@@ -41,6 +43,50 @@ export function GoalDetail() {
   const { mutate: publishEvent, isPending: isPublishing } = useNostrPublish();
   const [donateDialogOpen, setDonateDialogOpen] = useState(false);
   const [lastQuote, setLastQuote] = useState<string | null>(null);
+
+  const handleReport = () => {
+    if (!user || !goalEvent) return;
+    publishEvent({
+      kind: 1984,
+      content: '',
+      tags: [
+        ['e', goalEvent.id],
+        ['p', goalEvent.pubkey],
+        ['report', 'Malicious content or spam'],
+      ],
+    });
+  };
+
+  // Auto-finalize: when the owner views an expired active goal, publish the result
+  const autoFinalizedRef = useRef(false);
+  useEffect(() => {
+    if (!isOwner || !goal || !goalEvent || !progress || goal.status !== 'active') return;
+    if (autoFinalizedRef.current) return;
+
+    const endDate = new Date((goal.startDate + goal.durationDays * 86400) * 1000);
+    if (new Date() < endDate) return;
+
+    autoFinalizedRef.current = true;
+    const isComplete = progress.checkedInDays >= progress.totalDays;
+    const status = isComplete ? 'completed' : 'failed';
+
+    const tags = goalEvent.tags
+      .filter(([n]) => n !== 'status' && n !== 'completed_at')
+      .concat([
+        ['status', status],
+        ...(isComplete ? [['completed_at', String(Math.floor(Date.now() / 1000))]] : []),
+      ]);
+
+    publishEvent({
+      kind: GOAL_KIND,
+      content: '',
+      tags,
+      created_at: Math.floor(Date.now() / 1000),
+    });
+  }, [isOwner, goal?.id, goal?.status, progress, goalEvent?.id]);
+
+  // Remove unused handleCompleteGoal and handleFailGoal
+  // (they're now automatically called via the effect above)
 
   // Fetch goal event
   const {
@@ -227,6 +273,15 @@ export function GoalDetail() {
             >
               {goal.status}
             </Badge>
+            {!isOwner && user && (
+              <button
+                onClick={handleReport}
+                className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-destructive transition-colors"
+                title="Report this goal"
+              >
+                <Flag className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
 
           {goal.description && (

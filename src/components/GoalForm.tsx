@@ -5,6 +5,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { useWallet } from '@/hooks/useWallet';
 import { GOAL_KIND } from '@/lib/goals';
+import { containsBlockedContent } from '@/lib/moderation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -115,6 +116,16 @@ export function GoalForm() {
 
     if (selectedDays.length === 0) {
       return; // Form won't submit without days, but button is disabled anyway
+    }
+
+    // Content moderation: block profanity and harmful content
+    const blockedTitle = containsBlockedContent(data.title);
+    if (blockedTitle) {
+      return; // Blocked word detected
+    }
+    const blockedDesc = containsBlockedContent(data.description);
+    if (blockedDesc) {
+      return;
     }
 
     const now = Math.floor(Date.now() / 1000);

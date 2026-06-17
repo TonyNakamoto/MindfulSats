@@ -2,6 +2,7 @@ import { useSeoMeta } from '@unhead/react';
 import { Link } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useGoalFeed } from '@/hooks/useGoals';
+import { useMuteList } from '@/hooks/useMuteList';
 import { GoalCard, GoalCardSkeleton } from '@/components/GoalCard';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LoginArea } from '@/components/auth/LoginArea';
@@ -37,6 +38,7 @@ const Index = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const category = activeCategory === 'all' ? undefined : activeCategory;
   const { data: goals, isLoading, isError } = useGoalFeed(category);
+  const { data: mutedPubkeys } = useMuteList();
 
   useSeoMeta({
     title: 'MindfulSats — Meditation Accountability on Nostr',
@@ -202,7 +204,9 @@ const Index = () => {
           </Card>
         ) : goals && goals.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {goals.map(({ goal, event }) => (
+            {goals
+              .filter(({ event }) => !mutedPubkeys?.has(event.pubkey))
+              .map(({ goal, event }) => (
               <GoalCard
                 key={event.id}
                 goal={goal}
