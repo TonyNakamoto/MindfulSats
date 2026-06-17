@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#064e3b"/>
+      <stop offset="50%" style="stop-color:#065f46"/>
+      <stop offset="100%" style="stop-color:#0f766e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#059669"/>
+      <stop offset="100%" style="stop-color:#14b8a6"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="20" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Subtle radial glow -->
+  <circle cx="600" cy="280" r="300" fill="#059669" opacity="0.08" filter="url(#glow)"/>
+
+  <!-- Brain icon -->
+  <g transform="translate(600, 240)" fill="none" stroke="url(#accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-45,-18 C-45,-50 -13,-58 0,-45 C13,-58 45,-50 45,-18 C45,9 22,18 22,36 L13,36 C13,18 36,9 36,-18 C36,-36 13,-40 0,-31 C-13,-40 -36,-36 -36,-18 C-36,9 -13,18 -13,36 L-22,36 C-22,18 -45,9 -45,-18Z"/>
+  </g>
+
+  <!-- Title -->
+  <text x="600" y="360" text-anchor="middle" fill="white" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="800" letter-spacing="-2">
+    MindfulSats
+  </text>
+
+  <!-- Subtitle -->
+  <text x="600" y="420" text-anchor="middle" fill="#a7f3d0" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="400" letter-spacing="0.5">
+    Build Better Habits With Accountability
+  </text>
+
+  <!-- Small tagline -->
+  <text x="600" y="470" text-anchor="middle" fill="#6ee7b7" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="300" opacity="0.7">
+    Set meditation goals · Track progress · Put sats on the line
+  </text>
+
+  <!-- Decorative dots -->
+  <circle cx="300" cy="500" r="3" fill="#14b8a6" opacity="0.3"/>
+  <circle cx="600" cy="510" r="3" fill="#14b8a6" opacity="0.3"/>
+  <circle cx="900" cy="500" r="3" fill="#14b8a6" opacity="0.3"/>
+</svg>
