@@ -40,6 +40,7 @@ const CATEGORIES = [
   'digital-detox',
   'hydration',
   'nutrition',
+  'sobriety',
 ] as const;
 
 

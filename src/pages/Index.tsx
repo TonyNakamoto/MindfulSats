@@ -27,6 +27,7 @@ const CATEGORIES = [
   { value: 'exercise', label: 'Exercise', icon: Flame },
   { value: 'yoga', label: 'Yoga', icon: Heart },
   { value: 'journaling', label: 'Journaling', icon: Sparkles },
+  { value: 'sobriety', label: 'Sobriety', icon: Heart },
   { value: 'sleep', label: 'Sleep', icon: Zap },
 ];
 

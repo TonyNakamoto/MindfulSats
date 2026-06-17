@@ -149,21 +149,6 @@ export function GoalDetail() {
     });
   };
 
-  const handleCancelGoal = () => {
-    if (!user || !goal || !goalEvent) return;
-
-    const tags = goalEvent.tags
-      .filter(([n]) => n !== 'status')
-      .concat([['status', 'cancelled']]);
-
-    publishEvent({
-      kind: GOAL_KIND,
-      content: '',
-      tags,
-      created_at: Math.floor(Date.now() / 1000),
-    });
-  };
-
   // Get all dates for the goal period
   const allDates = goal ? getDateRange(goal) : [];
 
@@ -574,24 +559,13 @@ export function GoalDetail() {
               <p className="text-sm text-muted-foreground">
                 {progress.checkedInDays} of {progress.totalDays} check-ins completed.
               </p>
-              <div className="flex gap-2 justify-center">
-                <Button
-                  className="gap-2"
-                  onClick={isComplete ? handleCompleteGoal : handleFailGoal}
-                  disabled={isPublishing}
-                >
-                  {isPublishing ? 'Finalizing...' : 'Finalize Goal'}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCancelGoal}
-                  disabled={isPublishing}
-                  className="text-muted-foreground"
-                >
-                  Cancel Goal
-                </Button>
-              </div>
+              <Button
+                className="gap-2"
+                onClick={isComplete ? handleCompleteGoal : handleFailGoal}
+                disabled={isPublishing}
+              >
+                {isPublishing ? 'Finalizing...' : 'Finalize Goal'}
+              </Button>
             </CardContent>
           </Card>
         );
