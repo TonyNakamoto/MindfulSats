@@ -52,6 +52,9 @@ export function DonateDialog({
   const { sendPayment } = useNWC();
   const { toast } = useToast();
 
+  // Fetch the selected charity's Nostr profile to get their Lightning address
+  const charityAuthor = useAuthor(selectedCharity?.pubkey);
+
   const charities = getCharities();
   const [selectedCharity, setSelectedCharity] = useState<Charity | null>(
     charities[0] ?? null,
@@ -107,15 +110,15 @@ export function DonateDialog({
       setZapState('zapping');
 
       // Step 2: Attempt to zap the charity
-      // We need the charity's LNURL endpoint to create a zap invoice
-      // The charity's lud16 is fetched via useAuthor, but we need their kind 0 event
-      // For now, do the LNURL resolution manually since useZaps is hook-based
+      // Resolve the charity's Lightning address from their Nostr profile (kind 0)
+      const metadata = charityAuthor.data?.metadata;
+      const lud16 = metadata?.lud16 || metadata?.lud06;
+
+      if (!lud16) {
+        throw new Error(`${selectedCharity.name} has no Lightning address configured on Nostr.`);
+      }
 
       try {
-        // Fetch the charity's profile to get their Lightning address
-        const lud16 = 'opensats@npub.cash'; // Known for OpenSats
-        // For other charities, we'd resolve from their kind 0 event
-
         // Resolve LNURL from lud16
         const [name, domain] = lud16.split('@');
         const lnurlpUrl = `https://${domain}/.well-known/lnurlp/${name}`;

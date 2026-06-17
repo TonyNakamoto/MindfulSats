@@ -38,6 +38,20 @@ export const CHARITIES: Charity[] = [
     description: 'Grants for Nostr relay operators, client devs, library maintainers, and protocol contributors.',
     website: 'https://opensats.org/funds/nostr',
   },
+  {
+    npub: 'npub17xvf49kht23cddxgw92rvfktkd3vqvjgkgsdexh9847wl0927tqsrhc9as',
+    pubkey: 'f1989a96d75aa386b4c871543626cbb362c03248b220dc9ae53d7cefbcaaf2c1',
+    name: 'Human Rights Foundation',
+    description: 'Protecting human rights globally. Funds Bitcoin tools for dissidents, journalists & activists in closed societies.',
+    website: 'https://hrf.org',
+  },
+  {
+    npub: 'npub17xvf49kht23cddxgw92rvfktkd3vqvjgkgsdexh9847wl0927tqsrhc9as',
+    pubkey: 'f1989a96d75aa386b4c871543626cbb362c03248b220dc9ae53d7cefbcaaf2c1',
+    name: 'HRF Bitcoin Development Fund',
+    description: 'Grants for Bitcoin privacy, security & freedom tech — CoinSwap, Muun, SeedSigner, and more.',
+    website: 'https://hrf.org/program/financial-freedom/bitcoin-development-fund/',
+  },
 ];
 
 export function getCharities(): Charity[] {
