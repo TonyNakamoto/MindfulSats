@@ -11,6 +11,7 @@ import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { GOAL_KIND, CHECKIN_KIND, parseGoalEvent, buildGoalRef, formatSats, formatDateKey, type GoalData } from '@/lib/goals';
 import { useGoalCheckins, computeProgress } from '@/hooks/useGoalCheckins';
 import { getRandomQuote } from '@/lib/quotes';
+import { checkRateLimit } from '@/lib/moderation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -137,6 +138,9 @@ export function GoalDetail() {
 
   const handleCheckin = (dateKey?: string) => {
     if (!user || !goal || !pubkey) return;
+
+    // Rate limit check-ins
+    if (!checkRateLimit().allowed) return;
 
     const ref = buildGoalRef(pubkey, goal.id);
     const checkinDate = dateKey || formatDateKey(new Date());

@@ -5,7 +5,13 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { useWallet } from '@/hooks/useWallet';
 import { GOAL_KIND } from '@/lib/goals';
-import { containsBlockedContent } from '@/lib/moderation';
+import {
+  moderateText,
+  findUnsafeUrl,
+  checkRateLimit,
+  isDuplicateGoal,
+  enforceLength,
+} from '@/lib/moderation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -118,15 +124,28 @@ export function GoalForm() {
       return; // Form won't submit without days, but button is disabled anyway
     }
 
-    // Content moderation: block profanity and harmful content
-    const blockedTitle = containsBlockedContent(data.title);
-    if (blockedTitle) {
-      return; // Blocked word detected
-    }
-    const blockedDesc = containsBlockedContent(data.description);
-    if (blockedDesc) {
-      return;
-    }
+    // ─── Defense checks ────────────────────────────────
+    // 1. Length limits
+    const lenCheck = enforceLength(data.title, data.description);
+    if (!lenCheck.valid) return;
+
+    // 2. Rate limit
+    const rateCheck = checkRateLimit();
+    if (!rateCheck.allowed) return;
+
+    // 3. Duplicate detection
+    if (isDuplicateGoal(data.title)) return;
+
+    // 4. Profanity / harm filter
+    const titleCheck = moderateText(data.title);
+    if (!titleCheck.passed) return;
+    const descCheck = moderateText(data.description);
+    if (!descCheck.passed) return;
+
+    // 5. Unsafe URLs
+    const unsafeUrl = findUnsafeUrl(data.description);
+    if (unsafeUrl) return;
+    // ─── End defense checks ────────────────────────────
 
     const now = Math.floor(Date.now() / 1000);
     const dTag = `goal-${now}-${Math.random().toString(36).slice(2, 8)}`;
