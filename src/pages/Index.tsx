@@ -237,7 +237,7 @@ const Index = () => {
                 Leaderboard
               </Link>
               <a
-                href="https://shakespeare.diy/clone?url=https%3A%2F%2Fgithub.com%2FTonyNakamoto%2Fwellness"
+                href="https://shakespeare.diy/clone?url=https%3A%2F%2Fgithub.com%2FTonyNakamoto%2FMindfulSats"
                 target="_blank"
                 rel="noopener noreferrer"
               >
