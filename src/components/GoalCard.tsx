@@ -1,0 +1,148 @@
+import { Link } from 'react-router-dom';
+import { nip19 } from 'nostr-tools';
+import type { NostrEvent } from '@nostrify/nostrify';
+import { useAuthor } from '@/hooks/useAuthor';
+import { type GoalData, formatSats } from '@/lib/goals';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Progress } from '@/components/ui/progress';
+import { Target, Clock, Flame, Zap } from 'lucide-react';
+
+interface GoalCardProps {
+  goal: GoalData;
+  event: NostrEvent;
+  progress?: {
+    percentage: number;
+    checkedInDays: number;
+    totalDays: number;
+    streak: number;
+  };
+}
+
+export function GoalCard({ goal, event, progress }: GoalCardProps) {
+  const author = useAuthor(event.pubkey);
+  const metadata = author.data?.metadata;
+  const npub = event.pubkey ? nip19.npubEncode(event.pubkey) : '';
+
+  const displayName = metadata?.display_name || metadata?.name || npub.slice(0, 12) + '...';
+  const avatarUrl = metadata?.picture;
+  const statusVariant =
+    goal.status === 'completed' ? 'default' :
+    goal.status === 'failed' ? 'destructive' :
+    goal.status === 'cancelled' ? 'secondary' :
+    'outline';
+
+  const startDate = new Date(goal.startDate * 1000);
+  const endDate = new Date((goal.startDate + goal.durationDays * 86400) * 1000);
+
+  return (
+    <Link to={`/goal/${event.pubkey}/${goal.id}`} className="block group">
+      <Card className="hover:border-primary/50 transition-colors duration-200 h-full">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-3 min-w-0">
+              <Avatar className="h-10 w-10 shrink-0">
+                <AvatarImage src={avatarUrl} alt={displayName} />
+                <AvatarFallback>{displayName[0]}</AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate">{displayName}</p>
+                <p className="text-xs text-muted-foreground">
+                  {startDate.toLocaleDateString()} – {endDate.toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+            <Badge variant={statusVariant} className="shrink-0 capitalize text-xs">
+              {goal.status}
+            </Badge>
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-3">
+          <div>
+            <h3 className="font-semibold text-base leading-tight group-hover:text-primary transition-colors">
+              {goal.title}
+            </h3>
+            {goal.description && (
+              <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                {goal.description}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="secondary" className="text-xs gap-1">
+              <Target className="h-3 w-3" />
+              {goal.target} {goal.unit}
+            </Badge>
+            <Badge variant="secondary" className="text-xs gap-1">
+              <Clock className="h-3 w-3" />
+              {goal.frequency} · {goal.durationDays}d
+            </Badge>
+            {goal.pledgeMsats > 0 && (
+              <Badge variant="secondary" className="text-xs gap-1">
+                <Zap className="h-3 w-3" />
+                {formatSats(goal.pledgeMsats)}
+              </Badge>
+            )}
+          </div>
+
+          {progress && goal.status === 'active' && (
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Flame className="h-3 w-3 text-orange-500" />
+                  {progress.streak}d streak
+                </span>
+                <span>
+                  {progress.checkedInDays}/{progress.totalDays} days
+                </span>
+              </div>
+              <Progress value={progress.percentage} className="h-1.5" />
+            </div>
+          )}
+
+          {goal.categories.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {goal.categories.map((cat) => (
+                <Badge key={cat} variant="outline" className="text-[10px] px-1.5 py-0">
+                  {cat}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
+
+export function GoalCardSkeleton() {
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <div className="space-y-1.5">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-3 w-32" />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="space-y-1.5">
+          <Skeleton className="h-5 w-3/4" />
+          <Skeleton className="h-4 w-full" />
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-5 w-20 rounded-full" />
+          <Skeleton className="h-5 w-16 rounded-full" />
+          <Skeleton className="h-5 w-24 rounded-full" />
+        </div>
+        <Skeleton className="h-1.5 w-full" />
+      </CardContent>
+    </Card>
+  );
+}
