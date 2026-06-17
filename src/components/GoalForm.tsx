@@ -45,12 +45,12 @@ const CATEGORIES = [
 
 const UNITS = [
   { value: 'minutes', label: 'Minutes' },
+  { value: 'hours', label: 'Hours' },
   { value: 'sessions', label: 'Sessions' },
   { value: 'reps', label: 'Reps' },
   { value: 'steps', label: 'Steps' },
   { value: 'pages', label: 'Pages' },
   { value: 'glasses', label: 'Glasses' },
-  { value: 'hours', label: 'Hours' },
 ] as const;
 
 const FREQUENCIES = [
