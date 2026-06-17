@@ -46,6 +46,12 @@ const Index = () => {
   // Reset page when category changes
   useEffect(() => { setPage(0); }, [category]);
 
+  const filtered = goals
+    ? goals.filter(({ event }) => !mutedPubkeys?.has(event.pubkey))
+    : [];
+  const totalPages = Math.ceil(filtered.length / PER_PAGE);
+  const paginated = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
+
   useSeoMeta({
     title: 'MindfulSats — Meditation Accountability on Nostr',
     description: 'Set meditation goals, track your progress, and put sats on the line. Build better habits with the power of Nostr and Bitcoin.',
