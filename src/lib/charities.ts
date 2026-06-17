@@ -21,6 +21,8 @@ export interface Charity {
   description: string;
   /** Website URL */
   website?: string;
+  /** Lightning address (resolved dynamically from Nostr profile if omitted) */
+  lightningAddress?: string;
 }
 
 export const CHARITIES: Charity[] = [
@@ -30,6 +32,7 @@ export const CHARITIES: Charity[] = [
     name: 'OpenSats',
     description: '501(c)(3) funding Bitcoin & open-source dev. 100% pass-through, no management fees.',
     website: 'https://opensats.org',
+    lightningAddress: 'opensats@npub.cash',
   },
   {
     npub: 'npub10pensatlcfwktnvjjw2dtem38n6rvw8g6fv73h84cuacxn4c28eqyfn34f',
@@ -37,13 +40,15 @@ export const CHARITIES: Charity[] = [
     name: 'OpenSats Nostr Fund',
     description: 'Grants for Nostr relay operators, client devs, library maintainers, and protocol contributors.',
     website: 'https://opensats.org/funds/nostr',
+    lightningAddress: 'opensats@npub.cash',
   },
   {
     npub: 'npub17xvf49kht23cddxgw92rvfktkd3vqvjgkgsdexh9847wl0927tqsrhc9as',
     pubkey: 'f1989a96d75aa386b4c871543626cbb362c03248b220dc9ae53d7cefbcaaf2c1',
     name: 'Human Rights Foundation',
-    description: 'Protecting human rights globally. Funds Bitcoin tools for dissidents, journalists & activists in closed societies.',
+    description: 'Protecting human rights globally. Funds Bitcoin tools for dissidents, journalists & activists.',
     website: 'https://hrf.org',
+    lightningAddress: 'nostr@btcpay.hrf.org',
   },
   {
     npub: 'npub17xvf49kht23cddxgw92rvfktkd3vqvjgkgsdexh9847wl0927tqsrhc9as',
@@ -51,6 +56,7 @@ export const CHARITIES: Charity[] = [
     name: 'HRF Bitcoin Development Fund',
     description: 'Grants for Bitcoin privacy, security & freedom tech — CoinSwap, Muun, SeedSigner, and more.',
     website: 'https://hrf.org/program/financial-freedom/bitcoin-development-fund/',
+    lightningAddress: 'nostr@btcpay.hrf.org',
   },
 ];
 

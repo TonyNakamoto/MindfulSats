@@ -38,6 +38,7 @@ export const QUOTES = [
   "Consistency beats intensity.",
   "Show up. That's 80% of the battle.",
   "Don't break the chain.",
+  "Hard choices, easy life. Easy choices, hard life. — Jerzy Gregorek",
   "Stack small wins.",
   "Today's effort is tomorrow's strength.",
 ];

@@ -129,9 +129,9 @@ export function DonateDialog({
       setZapState('zapping');
 
       // Step 2: Attempt to zap the charity
-      // Resolve the charity's Lightning address from their Nostr profile (kind 0)
+      // Use the charity's explicit Lightning address, or resolve from Nostr profile
       const metadata = charityAuthor.data?.metadata;
-      const lud16 = metadata?.lud16 || metadata?.lud06;
+      const lud16 = selectedCharity?.lightningAddress || metadata?.lud16 || metadata?.lud06;
 
       if (!lud16) {
         throw new Error(`${selectedCharity.name} has no Lightning address configured on Nostr.`);
@@ -419,6 +419,11 @@ export function DonateDialog({
                     <p className="text-xs text-muted-foreground truncate">
                       {charity.description}
                     </p>
+                    {charity.lightningAddress && (
+                      <p className="text-[10px] text-muted-foreground/70 truncate font-mono mt-0.5">
+                        ⚡ {charity.lightningAddress}
+                      </p>
+                    )}
                   </div>
                   {selectedCharity?.pubkey === charity.pubkey && selectedCharity?.name === charity.name && (
                     <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />

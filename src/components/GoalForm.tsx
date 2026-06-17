@@ -284,7 +284,16 @@ export function GoalForm() {
 
           {/* Day picker */}
           <div className="space-y-2">
-            <Label>Which days?</Label>
+            <div className="flex items-center justify-between">
+              <Label>Which days?</Label>
+              <button
+                type="button"
+                onClick={() => setSelectedDays([0, 1, 2, 3, 4, 5, 6])}
+                className="text-xs text-primary hover:underline"
+              >
+                Select all days
+              </button>
+            </div>
             <div className="flex gap-1">
               {dayLabels.map((label, i) => {
                 const isSelected = selectedDays.includes(i);
