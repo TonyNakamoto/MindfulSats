@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { LoginArea } from '@/components/auth/LoginArea';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import {
   ArrowLeft,
   Trophy,
@@ -136,7 +137,10 @@ export function Leaderboard() {
               <h1 className="text-xl font-bold">Leaderboard</h1>
             </div>
           </div>
-          <LoginArea className="max-w-36" />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <LoginArea className="max-w-36" />
+          </div>
         </div>
 
         {/* Tabs */}

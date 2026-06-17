@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useGoalFeed } from '@/hooks/useGoals';
 import { GoalCard, GoalCardSkeleton } from '@/components/GoalCard';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -58,6 +59,7 @@ const Index = () => {
               <span className="text-xl font-bold tracking-tight">MindfulSats</span>
             </div>
             <div className="flex items-center gap-3">
+              <ThemeToggle />
               <LoginArea className="max-w-44" />
             </div>
           </div>

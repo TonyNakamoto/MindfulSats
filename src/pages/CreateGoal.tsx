@@ -1,6 +1,7 @@
 import { useSeoMeta } from '@unhead/react';
 import { Link } from 'react-router-dom';
 import { GoalForm } from '@/components/GoalForm';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Brain } from 'lucide-react';
@@ -29,7 +30,10 @@ export function CreateGoal() {
               <h1 className="text-xl font-bold">Create Goal</h1>
             </div>
           </div>
-          <LoginArea className="max-w-36" />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <LoginArea className="max-w-36" />
+          </div>
         </div>
 
         <GoalForm />

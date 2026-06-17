@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useUserGoals } from '@/hooks/useGoals';
 import { GoalCard, GoalCardSkeleton } from '@/components/GoalCard';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -47,7 +48,10 @@ export function MyGoals() {
                 New Goal
               </Link>
             </Button>
-            <LoginArea className="max-w-36" />
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <LoginArea className="max-w-36" />
+            </div>
           </div>
         </div>
 
