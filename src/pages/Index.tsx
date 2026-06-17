@@ -4,6 +4,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useGoalFeed } from '@/hooks/useGoals';
 import { useMuteList } from '@/hooks/useMuteList';
 import { GoalCard, GoalCardSkeleton } from '@/components/GoalCard';
+import { DailyChecklist } from '@/components/DailyChecklist';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { Button } from '@/components/ui/button';
@@ -145,6 +146,9 @@ const Index = () => {
 
       {/* Goals Feed */}
       <section className="container max-w-5xl mx-auto px-4 py-12">
+        {/* Daily checklist for logged-in users */}
+        <DailyChecklist />
+
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold flex items-center gap-2">
