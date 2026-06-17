@@ -78,7 +78,6 @@ const Index = () => {
             </h1>
             <p className="text-lg text-muted-foreground mb-8 max-w-lg">
               Set meditation goals, track your daily progress, and put sats on the line.
-              Powered by Nostr for true ownership of your wellness journey.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button asChild size="lg" className="gap-2">

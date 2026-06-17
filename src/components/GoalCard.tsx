@@ -40,49 +40,47 @@ export function GoalCard({ goal, event, progress }: GoalCardProps) {
   return (
     <Link to={`/goal/${event.pubkey}/${goal.id}`} className="block group">
       <Card className="hover:border-primary/50 transition-colors duration-200 h-full">
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-1.5">
           <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-3 min-w-0">
-              <Avatar className="h-10 w-10 shrink-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Avatar className="h-8 w-8 shrink-0">
                 <AvatarImage src={avatarUrl} alt={displayName} />
                 <AvatarFallback>{displayName[0]}</AvatarFallback>
               </Avatar>
               <div className="min-w-0">
-                <p className="text-sm font-medium truncate">{displayName}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm font-medium truncate leading-tight">{displayName}</p>
+                <p className="text-[11px] text-muted-foreground leading-tight">
                   {startDate.toLocaleDateString()} – {endDate.toLocaleDateString()}
                 </p>
               </div>
             </div>
-            <Badge variant={statusVariant} className="shrink-0 capitalize text-xs">
+            <Badge variant={statusVariant} className="shrink-0 capitalize text-[10px] px-1.5 py-0">
               {goal.status}
             </Badge>
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-3">
-          <div>
-            <h3 className="font-semibold text-base leading-tight group-hover:text-primary transition-colors">
-              {goal.title}
-            </h3>
-            {goal.description && (
-              <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                {goal.description}
-              </p>
-            )}
-          </div>
+        <CardContent className="space-y-2">
+          <h3 className="font-semibold text-sm leading-snug group-hover:text-primary transition-colors">
+            {goal.title}
+          </h3>
+          {goal.description && (
+            <p className="text-xs text-muted-foreground line-clamp-2">
+              {goal.description}
+            </p>
+          )}
 
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary" className="text-xs gap-1">
+          <div className="flex flex-wrap gap-1.5">
+            <Badge variant="secondary" className="text-[10px] gap-1 px-1.5 py-0">
               <Target className="h-3 w-3" />
               {goal.target} {goal.unit}
             </Badge>
-            <Badge variant="secondary" className="text-xs gap-1">
+            <Badge variant="secondary" className="text-[10px] gap-1 px-1.5 py-0">
               <Clock className="h-3 w-3" />
               {goal.days.length === 7 ? 'daily' : `${goal.days.length}d/wk`} · {goal.durationDays}d
             </Badge>
             {goal.pledgeMsats > 0 && (
-              <Badge variant="secondary" className="text-xs gap-1">
+              <Badge variant="secondary" className="text-[10px] gap-1 px-1.5 py-0">
                 <Zap className="h-3 w-3" />
                 {formatSats(goal.pledgeMsats)}
               </Badge>
@@ -90,24 +88,24 @@ export function GoalCard({ goal, event, progress }: GoalCardProps) {
           </div>
 
           {progress && goal.status === 'active' && (
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs text-muted-foreground">
+            <div className="space-y-1">
+              <div className="flex justify-between text-[10px] text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Flame className="h-3 w-3 text-orange-500" />
                   {progress.streak}d streak
                 </span>
                 <span>
-                  {progress.checkedInDays}/{progress.totalDays} days
+                  {progress.checkedInDays}/{progress.totalDays}
                 </span>
               </div>
-              <Progress value={progress.percentage} className="h-1.5" />
+              <Progress value={progress.percentage} className="h-1" />
             </div>
           )}
 
           {goal.categories.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {goal.categories.map((cat) => (
-                <Badge key={cat} variant="outline" className="text-[10px] px-1.5 py-0">
+                <Badge key={cat} variant="outline" className="text-[9px] px-1 py-0 leading-tight">
                   {cat}
                 </Badge>
               ))}
