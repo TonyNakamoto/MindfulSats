@@ -75,8 +75,8 @@ export function GoalForm() {
   const navigate = useNavigate();
   const hasWallet = hasNWC || !!webln;
 
-  // Day selection: array of day indices (0=Sun..6=Sat), default all days
-  const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 4, 5, 6, 0]);
+  // Day selection: array of day indices (0=Sun..6=Sat), default none
+  const [selectedDays, setSelectedDays] = useState<number[]>([]);
 
   const {
     register,
@@ -111,6 +111,10 @@ export function GoalForm() {
 
   const onSubmit = async (data: GoalFormData) => {
     if (!user) return;
+
+    if (selectedDays.length === 0) {
+      return; // Form won't submit without days, but button is disabled anyway
+    }
 
     const now = Math.floor(Date.now() / 1000);
     const dTag = `goal-${now}-${Math.random().toString(36).slice(2, 8)}`;
@@ -438,7 +442,7 @@ export function GoalForm() {
         </CardContent>
       </Card>
 
-      <Button type="submit" size="lg" className="w-full gap-2" disabled={isPending}>
+      <Button type="submit" size="lg" className="w-full gap-2" disabled={isPending || selectedDays.length === 0}>
         <Sparkles className="h-4 w-4" />
         {isPending ? 'Creating Goal...' : 'Create Goal'}
       </Button>
