@@ -9,7 +9,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Sparkles,
   Target,
@@ -40,6 +40,11 @@ const Index = () => {
   const category = activeCategory === 'all' ? undefined : activeCategory;
   const { data: goals, isLoading, isError } = useGoalFeed(category);
   const { data: mutedPubkeys } = useMuteList();
+  const [page, setPage] = useState(0);
+  const PER_PAGE = 9;
+
+  // Reset page when category changes
+  useEffect(() => { setPage(0); }, [category]);
 
   useSeoMeta({
     title: 'MindfulSats — Meditation Accountability on Nostr',
@@ -207,16 +212,39 @@ const Index = () => {
             </CardContent>
           </Card>
         ) : goals && goals.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {goals
-              .filter(({ event }) => !mutedPubkeys?.has(event.pubkey))
-              .map(({ goal, event }) => (
-              <GoalCard
-                key={event.id}
-                goal={goal}
-                event={event}
-              />
-            ))}
+          <div className="space-y-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {paginated.map(({ goal, event }) => (
+                <GoalCard
+                  key={event.id}
+                  goal={goal}
+                  event={event}
+                />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-1">
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPage(i)}
+                    className={`h-8 w-8 rounded-md text-xs font-medium transition-colors ${
+                      i === page
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <p className="text-xs text-muted-foreground text-center">
+              Showing {paginated.length} of {filtered.length} goals
+            </p>
           </div>
         ) : (
           <Card className="border-dashed">

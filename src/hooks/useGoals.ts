@@ -12,7 +12,7 @@ export function useGoals(author?: string, category?: string) {
       const filters: Record<string, unknown>[] = [
         {
           kinds: [GOAL_KIND],
-          limit: 50,
+          limit: 150,
         },
       ];
 
