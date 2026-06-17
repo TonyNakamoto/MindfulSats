@@ -1,13 +1,13 @@
 /**
- * Mental health charity directory for MindfulSats accountability donations.
+ * Charity directory for MindfulSats accountability donations.
  *
- * To add a charity, they need:
+ * Each charity needs:
  * 1. A Nostr profile (npub) with a Lightning address (lud16 or lud06)
  * 2. That Lightning address must support zaps (NIP-57 LNURL-pay)
  *
  * Verification: when a user donates via zap, the LNURL service publishes
- * a kind 9735 zap receipt on Nostr. Anyone can verify the donation by
- * querying for zap receipts from the charity's pubkey.
+ * a kind 9735 zap receipt on Nostr relays. Anyone can verify by querying
+ * for zap receipts referencing the charity's pubkey.
  */
 
 export interface Charity {
@@ -23,20 +23,21 @@ export interface Charity {
   website?: string;
 }
 
-/**
- * Add real mental health charities with Nostr profiles + Lightning addresses here.
- * The pubkey must be a real Nostr identity with a lud16/lud06 in their kind 0 profile.
- */
 export const CHARITIES: Charity[] = [
-  // Placeholder — replace with real mental health charities that accept Bitcoin via Lightning
-  // Example format:
-  // {
-  //   npub: 'npub1...',
-  //   pubkey: 'abcdef...',
-  //   name: 'Mental Health Foundation',
-  //   description: 'Providing accessible mental health support worldwide.',
-  //   website: 'https://example.org',
-  // },
+  {
+    npub: 'npub10pensatlcfwktnvjjw2dtem38n6rvw8g6fv73h84cuacxn4c28eqyfn34f',
+    pubkey: '787338757fc25d65cd929394d5e7713cf43638e8d259e8dcf5c73b834eb851f2',
+    name: 'OpenSats',
+    description: '501(c)(3) funding Bitcoin & open-source dev. 100% pass-through, no management fees.',
+    website: 'https://opensats.org',
+  },
+  {
+    npub: 'npub10pensatlcfwktnvjjw2dtem38n6rvw8g6fv73h84cuacxn4c28eqyfn34f',
+    pubkey: '787338757fc25d65cd929394d5e7713cf43638e8d259e8dcf5c73b834eb851f2',
+    name: 'OpenSats Nostr Fund',
+    description: 'Grants for Nostr relay operators, client devs, library maintainers, and protocol contributors.',
+    website: 'https://opensats.org/funds/nostr',
+  },
 ];
 
 export function getCharities(): Charity[] {
