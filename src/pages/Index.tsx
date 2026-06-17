@@ -14,7 +14,7 @@ import {
   Heart,
   Brain,
   Zap,
-  ArrowRight,
+  Trophy,
   Leaf,
   Users,
 } from 'lucide-react';
@@ -233,14 +233,20 @@ const Index = () => {
               <span>MindfulSats — Built on Nostr</span>
             </div>
             <div className="flex items-center gap-4">
+              <Link to="/leaderboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+                <Trophy className="h-3 w-3" />
+                Leaderboard
+              </Link>
               <a
-                href="https://shakespeare.diy"
+                href="https://shakespeare.diy/clone?url=https%3A%2F%2Fgithub.com%2FTonyNakamoto%2Fwellness"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
               >
-                Vibed with Shakespeare
-                <ArrowRight className="h-3 w-3" />
+                <img
+                  src="https://shakespeare.diy/badge.svg"
+                  alt="Edit with Shakespeare"
+                  style={{ height: 'auto' }}
+                />
               </a>
             </div>
           </div>

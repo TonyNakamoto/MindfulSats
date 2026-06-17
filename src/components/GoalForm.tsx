@@ -42,18 +42,20 @@ const CATEGORIES = [
   'nutrition',
 ] as const;
 
-const FREQUENCIES = [
-  { value: 'daily', label: 'Daily' },
-  { value: 'weekly', label: 'Weekly' },
-] as const;
 
 const UNITS = [
   { value: 'minutes', label: 'Minutes' },
   { value: 'sessions', label: 'Sessions' },
+  { value: 'reps', label: 'Reps' },
   { value: 'steps', label: 'Steps' },
   { value: 'pages', label: 'Pages' },
   { value: 'glasses', label: 'Glasses' },
   { value: 'hours', label: 'Hours' },
+] as const;
+
+const FREQUENCIES = [
+  { value: 'daily', label: 'Every Day', desc: 'Check in once per day' },
+  { value: 'weekly', label: 'N Times Per Week', desc: 'Check in N times in any 7 days' },
 ] as const;
 
 export interface GoalFormData {
@@ -308,7 +310,7 @@ export function GoalForm() {
             <span>
               {frequency === 'daily'
                 ? `You'll check in every day for ${watch('durationDays') || '?'} days`
-                : `You'll check in each week for ${watch('durationDays') || '?'} days`}
+                : `You'll check in ${watch('target') || '?'} ${watch('unit') || 'times'} per week for ${watch('durationDays') || '?'} days`}
             </span>
           </div>
         </CardContent>

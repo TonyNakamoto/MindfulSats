@@ -50,47 +50,50 @@ export function computeProgress(goal: GoalData, checkins: CheckinData[]): GoalPr
   const start = new Date(goal.startDate * 1000);
   const end = new Date(start.getTime() + goal.durationDays * 86400000);
 
-  // Count days from start to today (capped at duration)
-  let elapsedDays = 0;
-  let checkedInDays = 0;
-  const cursor = new Date(start);
+  const isWeekly = goal.frequency === 'weekly';
+  const checkedInDays = checkins.length;
+  const totalDays = isWeekly
+    ? goal.target * Math.ceil(goal.durationDays / 7)
+    : goal.durationDays;
 
-  while (cursor <= today && elapsedDays < goal.durationDays) {
-    const key = formatDateKey(cursor);
-    if (checkedInDates.has(key)) {
-      checkedInDays++;
+  // Calculate elapsed - for weekly, count elapsed weeks * target
+  let elapsedExpected = 0;
+  const cursor = new Date(start);
+  if (isWeekly) {
+    // Weekly: count how many full weeks have elapsed, multiply by target
+    const msPerWeek = 7 * 86400000;
+    const elapsedMs = Math.min(today.getTime() - start.getTime(), goal.durationDays * 86400000);
+    const elapsedWeeks = Math.floor(elapsedMs / msPerWeek);
+    elapsedExpected = Math.min(elapsedWeeks * goal.target, totalDays);
+  } else {
+    // Daily: count elapsed days
+    while (cursor <= today && elapsedExpected < goal.durationDays) {
+      elapsedExpected++;
+      cursor.setDate(cursor.getDate() + 1);
     }
-    elapsedDays++;
-    cursor.setDate(cursor.getDate() + 1);
   }
 
   // Calculate streak (consecutive days counting backwards from today)
   let streak = 0;
   const streakCursor = new Date(today);
-  // Start checking from today going backwards
   while (true) {
     const key = formatDateKey(streakCursor);
     if (key < formatDateKey(start)) break;
     if (checkedInDates.has(key)) {
       streak++;
     } else {
-      // Only break if today is not checked in or we found a gap
       if (key === formatDateKey(today) || streak > 0) break;
     }
     streakCursor.setDate(streakCursor.getDate() - 1);
-    // Don't go before start date
     if (streakCursor < start) break;
   }
 
-  const totalDays = goal.durationDays;
   const percentage = totalDays > 0 ? Math.round((checkedInDays / totalDays) * 100) : 0;
-  const expectedPerDay = totalDays > 0 ? elapsedDays / totalDays : 0;
-  const actualPerDay = totalDays > 0 ? checkedInDays / totalDays : 0;
-  const isOnTrack = actualPerDay >= expectedPerDay || checkedInDays >= elapsedDays;
+  const isOnTrack = elapsedExpected > 0 ? checkedInDays >= elapsedExpected : true;
 
   return {
     totalDays,
-    elapsedDays,
+    elapsedDays: elapsedExpected,
     checkedInDays,
     checkedInDates,
     percentage,

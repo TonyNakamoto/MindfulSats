@@ -78,6 +78,7 @@ export function GoalDetail() {
   const avatarUrl = metadata?.picture;
 
   const isOwner = user?.pubkey === pubkey;
+  const isWeekly = goal?.frequency === 'weekly';
   const canCheckin = isOwner && goal?.status === 'active' && progress && !progress.checkedInDates.has(formatDateKey(new Date()));
   const todayKey = formatDateKey(new Date());
 
@@ -251,7 +252,9 @@ export function GoalDetail() {
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-3xl font-bold">{progress.checkedInDays}</span>
-                <span className="text-muted-foreground">/{progress.totalDays} days</span>
+                <span className="text-muted-foreground">
+                  /{progress.totalDays} {isWeekly ? 'sessions' : 'days'}
+                </span>
               </div>
               <div className="text-right">
                 <div className="text-sm text-muted-foreground">
@@ -289,7 +292,9 @@ export function GoalDetail() {
 
             {/* Day grid */}
             <div className="space-y-2">
-              <p className="text-sm font-medium text-muted-foreground">Daily Check-ins</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                {isWeekly ? 'Check-in History (any day counts)' : 'Daily Check-ins'}
+              </p>
               <div className="grid grid-cols-7 gap-1.5">
                 {allDates.map((date) => {
                   const isChecked = progress.checkedInDates.has(date);

@@ -5,6 +5,7 @@ import Index from "./pages/Index";
 import { CreateGoal } from "./pages/CreateGoal";
 import { MyGoals } from "./pages/MyGoals";
 import { GoalDetail } from "./pages/GoalDetail";
+import { Leaderboard } from "./pages/Leaderboard";
 import { NIP19Page } from "./pages/NIP19Page";
 import NotFound from "./pages/NotFound";
 
@@ -16,6 +17,7 @@ export function AppRouter() {
         <Route path="/" element={<Index />} />
         <Route path="/create" element={<CreateGoal />} />
         <Route path="/my-goals" element={<MyGoals />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/goal/:pubkey/:dTag" element={<GoalDetail />} />
         {/* NIP-19 route for npub1, note1, naddr1, nevent1, nprofile1 */}
         <Route path="/:nip19" element={<NIP19Page />} />

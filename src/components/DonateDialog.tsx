@@ -7,7 +7,7 @@ import { useAuthor } from '@/hooks/useAuthor';
 import { useNWC } from '@/hooks/useNWCContext';
 import { useToast } from '@/hooks/useToast';
 import { getCharities, type Charity } from '@/lib/charities';
-import { formatSats } from '@/lib/goals';
+import { formatSats, GOAL_KIND } from '@/lib/goals';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -65,6 +65,25 @@ export function DonateDialog({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const hasWallet = !!(webln || activeNWC);
+
+  /** Update the goal event with donation proof tags for leaderboard aggregation */
+  const tagGoalWithDonation = () => {
+    const now = Math.floor(Date.now() / 1000);
+    const tags = goalEvent.tags
+      .filter(([n]) => n !== 'donated_to' && n !== 'donated_sats' && n !== 'donated_at')
+      .concat([
+        ['donated_to', selectedCharity?.pubkey ?? ''],
+        ['donated_sats', String(amount)],
+        ['donated_at', String(now)],
+      ]);
+
+    publishEvent({
+      kind: GOAL_KIND,
+      content: goalEvent.content,
+      tags,
+      created_at: now,
+    });
+  };
 
   const handleDonate = async () => {
     if (!user || !selectedCharity) return;
@@ -174,6 +193,7 @@ export function DonateDialog({
         if (activeNWC && activeNWC.isConnected && activeNWC.connectionString) {
           try {
             await sendPayment(activeNWC, invoice);
+            tagGoalWithDonation();
             setZapState('complete');
             toast({
               title: 'Donation sent!',
@@ -194,6 +214,7 @@ export function DonateDialog({
               if (enabled) provider = enabled as typeof webln;
             }
             await provider.sendPayment(invoice);
+            tagGoalWithDonation();
             setZapState('complete');
             toast({
               title: 'Donation sent!',
