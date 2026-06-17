@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
+import { useState } from 'react';
 import { useSeoMeta } from '@unhead/react';
 import { useLeaderboard, type LeaderboardEntry } from '@/hooks/useLeaderboard';
 import { useAuthor } from '@/hooks/useAuthor';
@@ -14,7 +15,6 @@ import {
   ArrowLeft,
   Trophy,
   Medal,
-  Zap,
   Target,
   Heart,
   CheckCircle2,
@@ -22,7 +22,15 @@ import {
   Brain,
 } from 'lucide-react';
 
-function UserRow({ entry, rank }: { entry: LeaderboardEntry; rank: number }) {
+type Tab = 'completed' | 'donated' | 'goals';
+
+const TAB_LABELS: { key: Tab; label: string; icon: typeof CheckCircle2 }[] = [
+  { key: 'completed', label: 'Completions', icon: CheckCircle2 },
+  { key: 'donated', label: 'Sats Donated', icon: Heart },
+  { key: 'goals', label: 'Most Goals', icon: Target },
+];
+
+function UserRow({ entry, rank, tab }: { entry: LeaderboardEntry; rank: number; tab: Tab }) {
   const author = useAuthor(entry.pubkey);
   const metadata = author.data?.metadata;
   const npub = nip19.npubEncode(entry.pubkey);
@@ -36,6 +44,13 @@ function UserRow({ entry, rank }: { entry: LeaderboardEntry; rank: number }) {
       : rank === 3
         ? <Medal className="h-5 w-5 text-amber-700" />
         : <span className="text-sm font-mono text-muted-foreground w-5 text-center">{rank}</span>;
+
+  // Highlight the active ranking metric
+  const highlightValue = tab === 'completed'
+    ? `${entry.completionRate}% (${entry.completedGoals}/${entry.completedGoals + entry.failedGoals})`
+    : tab === 'donated'
+      ? formatSats(entry.totalSatsDonated * 1000)
+      : String(entry.totalGoals);
 
   return (
     <Link
@@ -70,16 +85,11 @@ function UserRow({ entry, rank }: { entry: LeaderboardEntry; rank: number }) {
       </div>
 
       <div className="text-right shrink-0">
-        {entry.totalSatsDonated > 0 && (
-          <div className="flex items-center gap-1 text-sm font-medium text-rose-500">
-            <Heart className="h-3.5 w-3.5" />
+        <span className="text-sm font-semibold">{highlightValue}</span>
+        {tab !== 'donated' && entry.totalSatsDonated > 0 && (
+          <div className="text-[10px] text-rose-500 flex items-center gap-0.5 justify-end">
+            <Heart className="h-3 w-3" />
             {formatSats(entry.totalSatsDonated * 1000)}
-          </div>
-        )}
-        {entry.totalSatsPledged > 0 && (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Zap className="h-3 w-3" />
-            {formatSats(entry.totalSatsPledged * 1000)} pledged
           </div>
         )}
       </div>
@@ -89,6 +99,19 @@ function UserRow({ entry, rank }: { entry: LeaderboardEntry; rank: number }) {
 
 export function Leaderboard() {
   const { data: entries, isLoading } = useLeaderboard();
+  const [tab, setTab] = useState<Tab>('completed');
+
+  const sorted = entries
+    ? [...entries].sort((a, b) => {
+        if (tab === 'completed') {
+          return b.completionRate - a.completionRate || b.completedGoals - a.completedGoals;
+        }
+        if (tab === 'donated') {
+          return b.totalSatsDonated - a.totalSatsDonated || b.totalGoals - a.totalGoals;
+        }
+        return b.totalGoals - a.totalGoals || b.completedGoals - a.completedGoals;
+      })
+    : [];
 
   useSeoMeta({
     title: 'Leaderboard — MindfulSats',
@@ -114,6 +137,24 @@ export function Leaderboard() {
             </div>
           </div>
           <LoginArea className="max-w-36" />
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-1 mb-6 bg-muted rounded-lg p-1">
+          {TAB_LABELS.map(({ key, label, icon: Icon }) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium rounded-md transition-colors ${
+                tab === key
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {label}
+            </button>
+          ))}
         </div>
 
         {/* Stats overview */}
@@ -170,10 +211,10 @@ export function Leaderboard() {
                   </div>
                 ))}
               </div>
-            ) : entries && entries.length > 0 ? (
+            ) : sorted && sorted.length > 0 ? (
               <div className="divide-y">
-                {entries.map((entry, i) => (
-                  <UserRow key={entry.pubkey} entry={entry} rank={i + 1} />
+                {sorted.map((entry, i) => (
+                  <UserRow key={entry.pubkey} entry={entry} rank={i + 1} tab={tab} />
                 ))}
               </div>
             ) : (

@@ -78,8 +78,7 @@ export function useLeaderboard() {
             ? Math.round((data.completed / (data.completed + data.failed)) * 100)
             : 0,
         }))
-        .filter((e) => e.totalGoals > 0)
-        .sort((a, b) => b.totalSatsDonated - a.totalSatsDonated || b.totalGoals - a.totalGoals);
+        .filter((e) => e.totalGoals > 0);
 
       return entries;
     },
