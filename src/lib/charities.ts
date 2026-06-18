@@ -46,7 +46,7 @@ export const CHARITIES: Charity[] = [
     npub: 'npub133yvyku5munsddczjqwz4w6aspwz93z22jmlzgw8xur7qu0368vq7urapg',
     pubkey: '8c48c25b94df2706b702901c2abb5d805c22c44a54b7f121c73707e071f1d1d8',
     name: 'Btrust',
-    description: 'Decentralizing Bitcoin development in Africa & the Global South. Funded by Jack Dorsey & Jay-Z.',
+    description: 'Decentralizing Bitcoin development in Africa & the Global South.',
     website: 'https://btrust.tech',
   },
 ];
