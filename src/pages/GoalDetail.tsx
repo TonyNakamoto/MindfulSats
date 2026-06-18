@@ -59,6 +59,18 @@ export function GoalDetail() {
     });
   };
 
+  const handleDelete = () => {
+    if (!user || !goalEvent) return;
+    if (!confirm('Delete this goal? This requests removal from relays.')) return;
+    publishEvent({
+      kind: 5,
+      content: 'Test data cleanup',
+      tags: [
+        ['e', goalEvent.id],
+      ],
+    });
+  };
+
   // Fetch goal event
   const {
     data: goalWithEvent,
@@ -657,6 +669,18 @@ export function GoalDetail() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Delete (owner only, for test data cleanup) */}
+      {isOwner && (
+        <div className="text-center pt-4">
+          <button
+            onClick={handleDelete}
+            className="text-xs text-muted-foreground/50 hover:text-destructive transition-colors"
+          >
+            Delete goal
+          </button>
+        </div>
       )}
     </div>
   );
