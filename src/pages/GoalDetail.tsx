@@ -152,7 +152,6 @@ export function GoalDetail() {
           ['date', todayKey],
           ['duration', `${goal.target} ${goal.unit}`],
           ['t', ...goal.categories.slice(0, 1)],
-          ['t', 'mental-health'],
         ],
       },
       {

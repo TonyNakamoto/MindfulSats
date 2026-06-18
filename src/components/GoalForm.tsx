@@ -175,14 +175,6 @@ export function GoalForm({ prefill }: { prefill?: GoalTemplate }) {
       ['alt', 'Meditation goal with accountability deposit'],
       ['title', data.title],
       ['t', data.category],
-      ['t', 'mental-health'],
-      ['frequency', freqValue],
-      ['target', String(data.target)],
-      ['unit', data.unit],
-      ['duration_days', String(data.durationDays)],
-      ['pledge_msats', String(pledgeMsats)],
-      ['start_date', String(now)],
-      ['status', 'active'],
     ];
 
     if (daysTag) {

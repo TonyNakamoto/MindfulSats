@@ -55,7 +55,6 @@ export function DailyChecklist() {
           ['date', todayKey],
           ['duration', `${goal.target} ${goal.unit}`],
           ['t', goal.categories[0] ?? 'meditation'],
-          ['t', 'mental-health'],
         ],
       },
       {
