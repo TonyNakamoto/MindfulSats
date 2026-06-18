@@ -43,7 +43,7 @@ const Index = () => {
   const { data: goals, isLoading, isError } = useGoalFeed(category);
   const { data: mutedPubkeys } = useMuteList();
   const [page, setPage] = useState(0);
-  const PER_PAGE = 9;
+  const PER_PAGE = 5;
   const [searchQuery, setSearchQuery] = useState('');
 
   // Reset page when category changes
