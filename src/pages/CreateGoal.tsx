@@ -7,9 +7,8 @@ import { TEMPLATES } from '@/lib/templates';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { GOAL_KIND } from '@/lib/goals';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { ArrowLeft, Brain, Zap, Sparkles } from 'lucide-react';
 
@@ -78,36 +77,27 @@ export function CreateGoal() {
           </div>
         </div>
 
-        {/* Templates */}
-        <Card className="mb-6">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Sparkles className="h-4 w-4" />
-              Quick Templates
-            </CardTitle>
-            <CardDescription>One tap to start. You can customize everything after.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            {TEMPLATES.map((t, i) => (
-              <button
-                key={i}
-                onClick={() => applyTemplate(t)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border bg-background hover:border-primary/50 hover:text-primary transition-colors"
-              >
-                {t.title}
-                <Badge variant="secondary" className="text-[9px] px-1 py-0">
-                  {t.target} {t.unit}
-                </Badge>
-                {t.pledgeSats > 0 && (
-                  <span className="text-[9px] text-amber-500 flex items-center gap-0.5">
-                    <Zap className="h-2.5 w-2.5" />
-                    {t.pledgeSats >= 1000 ? `${t.pledgeSats / 1000}k` : t.pledgeSats}
+        {/* Quick template dropdown */}
+        <div className="mb-6 flex items-center gap-2">
+          <Select onValueChange={(i) => applyTemplate(TEMPLATES[parseInt(i)])}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Quick start: pick a template..." />
+            </SelectTrigger>
+            <SelectContent>
+              {TEMPLATES.map((t, i) => (
+                <SelectItem key={i} value={String(i)}>
+                  <span className="flex items-center gap-2">
+                    <span>{t.title}</span>
+                    <span className="text-muted-foreground text-xs">
+                      · {t.durationDays}d
+                      {t.pledgeSats > 0 && ` · ${t.pledgeSats >= 1000 ? `${t.pledgeSats / 1000}k` : t.pledgeSats} sats`}
+                    </span>
                   </span>
-                )}
-              </button>
-            ))}
-          </CardContent>
-        </Card>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         <GoalForm />
       </div>
