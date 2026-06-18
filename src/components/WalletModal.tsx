@@ -62,6 +62,7 @@ const AddWalletContent = ({ alias, setAlias, connectionUri, setConnectionUri, re
         value={connectionUri}
         onChange={(e) => setConnectionUri(e.target.value)}
         rows={3}
+        className="break-all"
       />
     </div>
   </div>
