@@ -133,7 +133,7 @@ export function DailyChecklist() {
             return (
               <div
                 key={event.id}
-                className={`flex items-center gap-3 py-1.5 px-2 rounded-md transition-colors ${
+                className={`flex items-center gap-3 py-2 px-2 rounded-md transition-colors min-h-[44px] ${
                   isChecked ? 'opacity-60' : 'hover:bg-muted/50'
                 }`}
               >

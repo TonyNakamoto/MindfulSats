@@ -116,7 +116,7 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-3 gap-4 sm:gap-6">
           <Card className="border-dashed">
             <CardContent className="pt-6 text-center">
               <div className="h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">

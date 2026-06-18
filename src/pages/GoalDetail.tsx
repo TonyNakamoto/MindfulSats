@@ -399,7 +399,7 @@ export function GoalDetail() {
                         key={date}
                         variant="outline"
                         size="sm"
-                        className="gap-1 text-xs h-7"
+                        className="gap-1 text-xs min-h-[44px]"
                         onClick={() => handleCheckin(date)}
                         disabled={isPublishing}
                       >
@@ -432,7 +432,8 @@ export function GoalDetail() {
                   months.get(key)!.push(date);
                 }
 
-                const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                const dayHeaders = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+                const dayHeadersFull = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
                 return Array.from(months.entries()).map(([monthLabel, dates]) => {
                   // Find the day-of-week offset for the first day of the month
@@ -452,19 +453,21 @@ export function GoalDetail() {
                       </p>
 
                       {/* Day headers */}
-                      <div className="grid grid-cols-7 gap-1">
-                        {dayHeaders.map((dh) => (
+                      <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
+                        {dayHeaders.map((dh, i) => (
                           <div
                             key={dh}
-                            className="text-center text-[10px] text-muted-foreground font-medium py-0.5"
+                            className="text-center text-[9px] sm:text-[10px] text-muted-foreground font-medium py-0.5"
+                            title={dayHeadersFull[i]}
                           >
-                            {dh}
+                            <span className="hidden sm:inline">{dayHeadersFull[i]}</span>
+                            <span className="sm:hidden">{dh}</span>
                           </div>
                         ))}
                       </div>
 
                       {/* Calendar grid */}
-                      <div className="grid grid-cols-7 gap-1">
+                      <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
                         {padded.map((date, i) => {
                           if (date === null) {
                             return <div key={`empty-${i}`} className="aspect-square" />;

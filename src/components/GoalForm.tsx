@@ -111,6 +111,7 @@ export function GoalForm() {
   const durationDays = watch('durationDays');
 
   const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const dayLabelsShort = ['Su', 'M', 'Tu', 'W', 'Th', 'F', 'Sa'];
   const toggleDay = (day: number) => {
     setSelectedDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort()
@@ -342,8 +343,10 @@ export function GoalForm() {
                         ? 'bg-primary text-primary-foreground border-primary'
                         : 'bg-background text-muted-foreground border-border hover:border-primary/40'
                     }`}
+                    title={label}
                   >
-                    {label}
+                    <span className="hidden sm:inline">{label}</span>
+                    <span className="sm:hidden">{dayLabelsShort[i]}</span>
                   </button>
                 );
               })}
