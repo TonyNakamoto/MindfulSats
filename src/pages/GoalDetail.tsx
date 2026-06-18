@@ -556,7 +556,7 @@ export function GoalDetail() {
                   <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
                   <p className="text-sm text-amber-800 dark:text-amber-200 text-left">
                     You pledged <strong>{formatSats(goal.pledgeMsats)}</strong>.
-                    Donate to a mental health charity to honor your commitment.
+                    Donate to support the Bitcoin open-source ecosystem.
                     Your donation will be verifiable on Nostr.
                   </p>
                 </div>
