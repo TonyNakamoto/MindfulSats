@@ -662,10 +662,25 @@ export function GoalDetail() {
 function getDateRange(goal: GoalData): string[] {
   const dates: string[] = [];
   const start = new Date(goal.startDate * 1000);
-  for (let i = 0; i < goal.durationDays; i++) {
-    const d = new Date(start);
-    d.setDate(d.getDate() + i);
-    dates.push(formatDateKey(d));
+  const end = new Date(start);
+  end.setDate(end.getDate() + goal.durationDays - 1);
+
+  // Show ~6 weeks window around today: 2 weeks back, 4 weeks ahead
+  const today = new Date();
+  const windowStart = new Date(today);
+  windowStart.setDate(windowStart.getDate() - 14);
+  const windowEnd = new Date(today);
+  windowEnd.setDate(windowEnd.getDate() + 28);
+
+  // Clamp to goal's actual range
+  const displayStart = windowStart > start ? windowStart : start;
+  const displayEnd = windowEnd < end ? windowEnd : end;
+
+  const cursor = new Date(displayStart);
+  while (cursor <= displayEnd) {
+    dates.push(formatDateKey(cursor));
+    cursor.setDate(cursor.getDate() + 1);
   }
+
   return dates;
 }
