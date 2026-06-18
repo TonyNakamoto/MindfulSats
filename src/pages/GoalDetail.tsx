@@ -86,7 +86,14 @@ export function GoalDetail() {
     },
     staleTime: 30_000,
     enabled: !!pubkey && !!dTag,
-    placeholderData: passedGoal && passedEvent ? { goal: passedGoal, event: passedEvent } : undefined,
+    placeholderData: passedGoal && passedEvent
+      ? { goal: passedGoal, event: passedEvent }
+      : undefined,
+    // Keep showing placeholder even after query completes with null
+    structuralSharing: (oldData, newData) => {
+      if (!newData && oldData) return oldData;
+      return newData;
+    },
   });
 
   const goal = goalWithEvent?.goal ?? null;
