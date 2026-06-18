@@ -1,11 +1,11 @@
 import { useSeoMeta } from '@unhead/react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { useSeoMeta } from '@unhead/react';
 import { GoalForm } from '@/components/GoalForm';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { TEMPLATES, type GoalTemplate } from '@/lib/templates';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { ArrowLeft, Brain } from 'lucide-react';
 
