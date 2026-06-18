@@ -83,7 +83,7 @@ export function GoalForm({ prefill }: { prefill?: GoalTemplate }) {
   const { hasNWC, webln } = useWallet();
   const navigate = useNavigate();
   // Only consider wallet connected if user is logged in AND has an active NWC connection
-  const hasWallet = !!user && hasNWC;
+  const hasWallet = hasNWC || !!webln;
 
   // Day selection: array of day indices (0=Sun..6=Sat), default none
   const [selectedDays, setSelectedDays] = useState<number[]>(prefill?.days ?? []);
