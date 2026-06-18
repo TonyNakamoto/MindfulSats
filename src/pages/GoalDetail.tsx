@@ -89,15 +89,10 @@ export function GoalDetail() {
     placeholderData: passedGoal && passedEvent
       ? { goal: passedGoal, event: passedEvent }
       : undefined,
-    // Keep showing placeholder even after query completes with null
-    structuralSharing: (oldData, newData) => {
-      if (!newData && oldData) return oldData;
-      return newData;
-    },
   });
 
-  const goal = goalWithEvent?.goal ?? null;
-  const goalEvent = goalWithEvent?.event ?? null;
+  const goal = goalWithEvent?.goal ?? passedGoal ?? null;
+  const goalEvent = goalWithEvent?.event ?? passedEvent ?? null;
 
   const { data: checkins = [] } = useGoalCheckins(goal, pubkey);
   const progress = goal ? computeProgress(goal, checkins) : null;
