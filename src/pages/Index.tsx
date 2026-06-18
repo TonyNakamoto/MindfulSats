@@ -21,6 +21,8 @@ import {
   Leaf,
   Users,
   WifiOff,
+  Search,
+  X,
 } from 'lucide-react';
 
 const CATEGORIES = [
@@ -42,12 +44,30 @@ const Index = () => {
   const { data: mutedPubkeys } = useMuteList();
   const [page, setPage] = useState(0);
   const PER_PAGE = 9;
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Reset page when category changes
   useEffect(() => { setPage(0); }, [category]);
 
+  // Notification counts
+  const activeCount = goals?.filter((g) => g.goal.status === 'active').length ?? 0;
+  const expiringCount = goals?.filter((g) => {
+    if (g.goal.status !== 'active') return false;
+    const end = new Date((g.goal.startDate + g.goal.durationDays * 86400) * 1000);
+    const daysLeft = Math.ceil((end.getTime() - Date.now()) / 86400000);
+    return daysLeft <= 2 && daysLeft >= 0;
+  }).length ?? 0;
+
   const filtered = goals
-    ? goals.filter(({ event }) => !mutedPubkeys?.has(event.pubkey))
+    ? goals.filter(({ event, goal }) => {
+        if (mutedPubkeys?.has(event.pubkey)) return false;
+        if (searchQuery) {
+          const q = searchQuery.toLowerCase();
+          return goal.title.toLowerCase().includes(q) ||
+            goal.description.toLowerCase().includes(q);
+        }
+        return true;
+      })
     : [];
   const totalPages = Math.ceil(filtered.length / PER_PAGE);
   const paginated = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
@@ -170,12 +190,47 @@ const Index = () => {
               See what others are working on. Get inspired.
             </p>
           </div>
-          <Button asChild variant="ghost" size="sm" className="gap-1">
-            <Link to="/create">
-              <Sparkles className="h-4 w-4" />
-              Start Yours
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            {user && (activeCount > 0 || expiringCount > 0) && (
+              <Button asChild variant="ghost" size="sm" className="gap-1 relative">
+                <Link to="/my-goals">
+                  <Target className="h-4 w-4" />
+                  <span className="hidden sm:inline">My Goals</span>
+                  {expiringCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-amber-500 text-[10px] text-white flex items-center justify-center">
+                      {expiringCount}
+                    </span>
+                  )}
+                </Link>
+              </Button>
+            )}
+            <Button asChild variant="ghost" size="sm" className="gap-1">
+              <Link to="/create">
+                <Sparkles className="h-4 w-4" />
+                <span className="hidden sm:inline">Start Yours</span>
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* Search bar */}
+        <div className="mb-4 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search goals..."
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setPage(0); }}
+            className="w-full h-9 pl-9 pr-8 rounded-md border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => { setSearchQuery(''); setPage(0); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         {/* Category tabs */}

@@ -7,7 +7,7 @@ export const GOAL_KIND = 39651;
 export const CHECKIN_KIND = 9327;
 
 export type GoalFrequency = 'daily' | 'weekly' | 'custom';
-export type GoalStatus = 'active' | 'completed' | 'failed' | 'cancelled';
+export type GoalStatus = 'active' | 'completed' | 'failed';
 
 export interface GoalData {
   /** The d-tag identifier */

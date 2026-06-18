@@ -31,7 +31,6 @@ export function GoalCard({ goal, event, progress }: GoalCardProps) {
   const statusVariant =
     goal.status === 'completed' ? 'default' :
     goal.status === 'failed' ? 'destructive' :
-    goal.status === 'cancelled' ? 'secondary' :
     'outline';
 
   const startDate = new Date(goal.startDate * 1000);

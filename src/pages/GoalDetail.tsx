@@ -267,7 +267,6 @@ export function GoalDetail() {
               variant={
                 goal.status === 'completed' ? 'default' :
                 goal.status === 'failed' ? 'destructive' :
-                goal.status === 'cancelled' ? 'secondary' :
                 'outline'
               }
               className="capitalize shrink-0"
