@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Wallet, Plus, Trash2, Zap, Globe, WalletMinimal, CheckCircle, X } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { Wallet, Plus, Trash2, Zap, Globe, WalletMinimal, CheckCircle, X, Plug } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -95,22 +95,33 @@ const WalletContent = ({
     <div className="space-y-3">
       <h3 className="font-medium">Current Status</h3>
       <div className="grid gap-3">
-        {/* WebLN */}
-        <div className="flex items-center justify-between p-3 border rounded-lg">
-          <div className="flex items-center gap-3">
-            <Globe className="h-4 w-4 text-muted-foreground" />
-            <div>
-              <p className="text-sm font-medium">WebLN</p>
-              <p className="text-xs text-muted-foreground">Browser extension</p>
+         {/* WebLN */}
+          <div className="flex items-center justify-between p-3 border rounded-lg">
+            <div className="flex items-center gap-3">
+              <Globe className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <p className="text-sm font-medium">WebLN</p>
+                <p className="text-xs text-muted-foreground">
+                  {webln ? 'Extension found' : 'No extension detected'}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {webln ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1 text-xs h-8"
+                  onClick={handleEnableWebLN}
+                >
+                  <Plug className="h-3 w-3" />
+                  Enable
+                </Button>
+              ) : (
+                <Badge variant="secondary" className="text-xs">Not Found</Badge>
+              )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {webln && <CheckCircle className="h-4 w-4 text-green-600" />}
-            <Badge variant={webln ? "default" : "secondary"} className="text-xs">
-              {webln ? "Ready" : "Not Found"}
-            </Badge>
-          </div>
-        </div>
         {/* NWC */}
         <div className="flex items-center justify-between p-3 border rounded-lg">
           <div className="flex items-center gap-3">
@@ -227,6 +238,25 @@ export function WalletModal({ children, className }: WalletModalProps) {
 
   const hasNWC = connections.length > 0 && connections.some(c => c.isConnected);
   const { toast } = useToast();
+
+  const handleEnableWebLN = useCallback(async () => {
+    if (!webln) return;
+    try {
+      if (webln.enable && typeof webln.enable === 'function') {
+        await webln.enable();
+        toast({
+          title: 'Extension enabled',
+          description: 'Your browser wallet is now ready for payments.',
+        });
+      }
+    } catch (err) {
+      toast({
+        title: 'Could not enable extension',
+        description: (err as Error).message,
+        variant: 'destructive',
+      });
+    }
+  }, [webln, toast]);
 
   const handleAddConnection = async () => {
     if (!connectionUri.trim()) {

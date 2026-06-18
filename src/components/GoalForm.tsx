@@ -405,7 +405,6 @@ export function GoalForm({ prefill }: { prefill?: GoalTemplate }) {
           </CardTitle>
           <CardDescription>
             Put skin in the game. Pledge sats you'll lose if you don't reach your goal.
-            {!hasWallet && ' Connect a wallet to enable pledges.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -414,16 +413,16 @@ export function GoalForm({ prefill }: { prefill?: GoalTemplate }) {
               <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
               <div className="text-sm">
                 <p className="font-medium text-amber-800 dark:text-amber-200">
-                  Wallet not connected
+                  No wallet connected
                 </p>
                 <p className="text-amber-700 dark:text-amber-300">
-                  Connect a Lightning wallet to enable sats pledges for accountability.
+                  Connect one to enable automatic Lightning donations. You can still pledge — it'll be a public commitment.
                 </p>
               </div>
               <WalletModal>
                 <Button variant="outline" size="sm" className="shrink-0 gap-1">
                   <Wallet className="h-3.5 w-3.5" />
-                  Connect
+                  Setup
                 </Button>
               </WalletModal>
             </div>
