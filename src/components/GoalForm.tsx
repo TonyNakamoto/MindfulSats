@@ -468,7 +468,7 @@ export function GoalForm({ prefill }: { prefill?: GoalTemplate }) {
                       : 'bg-background text-foreground border-border hover:border-primary/50'
                   }`}
                 >
-                  {amt === 0 ? 'None' : amt >= 1000 ? `${amt / 1000}k` : amt}
+                  {amt === 0 ? '0' : amt >= 1000 ? `${amt / 1000}k` : amt}
                 </button>
               ))}
             </div>
