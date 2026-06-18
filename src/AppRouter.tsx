@@ -11,8 +11,9 @@ import { NIP19Page } from "./pages/NIP19Page";
 import NotFound from "./pages/NotFound";
 
 export function AppRouter() {
+  const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.includes('github.io');
   return (
-    <BrowserRouter basename="/MindfulSats">
+    <BrowserRouter basename={isGitHubPages ? '/MindfulSats' : undefined}>
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Index />} />
