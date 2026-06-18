@@ -2,7 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
 import { useState, useEffect, useRef } from 'react';
 import { useNostr } from '@nostrify/react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSeoMeta } from '@unhead/react';
 import type { NostrEvent } from '@nostrify/nostrify';
 import { useAuthor } from '@/hooks/useAuthor';
@@ -36,11 +36,13 @@ import {
   Heart,
   WifiOff,
   Flag,
+  Loader2,
 } from 'lucide-react';
 
 export function GoalDetail() {
   const { pubkey, dTag } = useParams<{ pubkey: string; dTag: string }>();
   const { nostr } = useNostr();
+  const queryClient = useQueryClient();
   const { user } = useCurrentUser();
   const { mutate: publishEvent, isPending: isPublishing } = useNostrPublish();
   const [donateDialogOpen, setDonateDialogOpen] = useState(false);
@@ -209,28 +211,40 @@ export function GoalDetail() {
     );
   }
 
-  if (error || !goal || !goalEvent) {
-    const isRelayError = !!error;
+  if (error) {
     return (
       <div className="container max-w-2xl mx-auto py-16 px-4 text-center">
-        {isRelayError ? (
-          <WifiOff className="h-16 w-16 mx-auto text-amber-500 mb-4" />
-        ) : (
-          <XCircle className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-        )}
-        <h1 className="text-2xl font-bold mb-2">
-          {isRelayError ? 'Relay Connection Issue' : 'Goal Not Found'}
-        </h1>
+        <WifiOff className="h-16 w-16 mx-auto text-amber-500 mb-4" />
+        <h1 className="text-2xl font-bold mb-2">Relay Connection Issue</h1>
         <p className="text-muted-foreground mb-6">
-          {isRelayError
-            ? 'Could not reach Nostr relays. Check your connection and try again.'
-            : "This goal doesn't exist or couldn't be loaded from relays."}
+          Could not reach Nostr relays. Check your connection and try again.
         </p>
         <Button asChild variant="outline">
           <Link to="/">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Link>
+        </Button>
+      </div>
+    );
+  }
+
+  if (!goal || !goalEvent) {
+    return (
+      <div className="container max-w-2xl mx-auto py-16 px-4 text-center">
+        <Loader2 className="h-16 w-16 mx-auto text-primary animate-spin mb-4" />
+        <h1 className="text-2xl font-bold mb-2">Waiting for Relay</h1>
+        <p className="text-muted-foreground mb-6">
+          Your goal was published. It may take a moment to propagate to relays.
+        </p>
+        <Button
+          variant="outline"
+          onClick={() => {
+            queryClient.invalidateQueries({ queryKey: ['nostr', 'goal', pubkey, dTag] });
+          }}
+        >
+          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          Check Again
         </Button>
       </div>
     );
