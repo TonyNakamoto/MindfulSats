@@ -82,7 +82,7 @@ export function GoalForm({ prefill }: { prefill?: GoalTemplate }) {
   const { mutate: publishEvent, isPending } = useNostrPublish();
   const { hasNWC, webln } = useWallet();
   const navigate = useNavigate();
-  const hasWallet = hasNWC || !!webln;
+  const hasWallet = hasNWC;
 
   // Day selection: array of day indices (0=Sun..6=Sat), default none
   const [selectedDays, setSelectedDays] = useState<number[]>(prefill?.days ?? []);
