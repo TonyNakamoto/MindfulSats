@@ -58,37 +58,6 @@ export function GoalDetail() {
     });
   };
 
-  // Auto-finalize: when the owner views an expired active goal, publish the result
-  const autoFinalizedRef = useRef(false);
-  useEffect(() => {
-    if (!isOwner || !goal || !goalEvent || !progress || goal.status !== 'active') return;
-    if (autoFinalizedRef.current) return;
-
-    const endDate = new Date((goal.startDate + goal.durationDays * 86400) * 1000);
-    if (new Date() < endDate) return;
-
-    autoFinalizedRef.current = true;
-    const isComplete = progress.checkedInDays >= progress.totalDays;
-    const status = isComplete ? 'completed' : 'failed';
-
-    const tags = goalEvent.tags
-      .filter(([n]) => n !== 'status' && n !== 'completed_at')
-      .concat([
-        ['status', status],
-        ...(isComplete ? [['completed_at', String(Math.floor(Date.now() / 1000))]] : []),
-      ]);
-
-    publishEvent({
-      kind: GOAL_KIND,
-      content: '',
-      tags,
-      created_at: Math.floor(Date.now() / 1000),
-    });
-  }, [isOwner, goal?.id, goal?.status, progress, goalEvent?.id]);
-
-  // Remove unused handleCompleteGoal and handleFailGoal
-  // (they're now automatically called via the effect above)
-
   // Fetch goal event
   const {
     data: goalWithEvent,
@@ -130,6 +99,34 @@ export function GoalDetail() {
   const isWeekly = goal?.frequency === 'weekly';
   const canCheckin = isOwner && goal?.status === 'active' && progress && !progress.checkedInDates.has(formatDateKey(new Date()));
   const todayKey = formatDateKey(new Date());
+
+  // Auto-finalize: when the owner views an expired active goal, publish the result
+  const autoFinalizedRef = useRef(false);
+  useEffect(() => {
+    if (!isOwner || !goal || !goalEvent || !progress || goal.status !== 'active') return;
+    if (autoFinalizedRef.current) return;
+
+    const endDate = new Date((goal.startDate + goal.durationDays * 86400) * 1000);
+    if (new Date() < endDate) return;
+
+    autoFinalizedRef.current = true;
+    const isComplete = progress.checkedInDays >= progress.totalDays;
+    const status = isComplete ? 'completed' : 'failed';
+
+    const tags = goalEvent.tags
+      .filter(([n]) => n !== 'status' && n !== 'completed_at')
+      .concat([
+        ['status', status],
+        ...(isComplete ? [['completed_at', String(Math.floor(Date.now() / 1000))]] : []),
+      ]);
+
+    publishEvent({
+      kind: GOAL_KIND,
+      content: '',
+      tags,
+      created_at: Math.floor(Date.now() / 1000),
+    });
+  }, [isOwner, goal?.id, goal?.status, progress, goalEvent?.id]);
 
   useSeoMeta({
     title: goal ? `${goal.title} — MindfulSats` : 'Goal — MindfulSats',
