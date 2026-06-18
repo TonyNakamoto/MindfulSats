@@ -82,7 +82,8 @@ export function GoalForm({ prefill }: { prefill?: GoalTemplate }) {
   const { mutate: publishEvent, isPending } = useNostrPublish();
   const { hasNWC, webln } = useWallet();
   const navigate = useNavigate();
-  const hasWallet = hasNWC;
+  // Only consider wallet connected if user is logged in AND has an active NWC connection
+  const hasWallet = !!user && hasNWC;
 
   // Day selection: array of day indices (0=Sun..6=Sat), default none
   const [selectedDays, setSelectedDays] = useState<number[]>(prefill?.days ?? []);
@@ -431,14 +432,20 @@ export function GoalForm({ prefill }: { prefill?: GoalTemplate }) {
           {hasWallet && (
             <div className="flex items-center gap-3 p-3 rounded-lg bg-green-50 border border-green-200 dark:bg-green-950 dark:border-green-800">
               <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0" />
-              <div className="text-sm">
+              <div className="text-sm flex-1">
                 <p className="font-medium text-green-800 dark:text-green-200">
-                  Wallet connected
+                  Wallet found
                 </p>
                 <p className="text-green-700 dark:text-green-300">
                   Your pledge will be publicly visible on Nostr.
                 </p>
               </div>
+              <WalletModal>
+                <Button variant="ghost" size="sm" className="shrink-0 gap-1 text-xs">
+                  <Wallet className="h-3 w-3" />
+                  Manage
+                </Button>
+              </WalletModal>
             </div>
           )}
 
