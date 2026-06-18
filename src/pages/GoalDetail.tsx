@@ -30,6 +30,7 @@ import {
   CheckCircle2,
   Calendar,
   Trophy,
+  XCircle,
   Wallet,
   AlertCircle,
   Heart,
