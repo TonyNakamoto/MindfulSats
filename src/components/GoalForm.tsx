@@ -195,7 +195,27 @@ export function GoalForm({ prefill }: { prefill?: GoalTemplate }) {
       },
       {
         onSuccess: (event) => {
-          navigate(`/goal/${event.pubkey}/${dTag}`);
+          // Pass the goal data as state so GoalDetail can show it immediately
+          // without waiting for relay propagation
+          navigate(`/goal/${event.pubkey}/${dTag}`, {
+            state: {
+              event,
+              goal: {
+                id: dTag,
+                title: data.title,
+                categories: [data.category],
+                frequency: freqValue,
+                days: selectedDays,
+                target: data.target,
+                unit: data.unit,
+                durationDays: data.durationDays,
+                pledgeMsats: pledgeMsats,
+                startDate: now,
+                status: 'active' as const,
+                description: data.description,
+              },
+            },
+          });
         },
       },
     );
