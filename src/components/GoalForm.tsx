@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { useWallet } from '@/hooks/useWallet';
 import { GOAL_KIND } from '@/lib/goals';
+import { type GoalTemplate } from '@/lib/templates';
 import {
   moderateText,
   findUnsafeUrl,
@@ -76,7 +77,7 @@ export interface GoalFormData {
   pledgeSats: number;
 }
 
-export function GoalForm() {
+export function GoalForm({ prefill }: { prefill?: GoalTemplate }) {
   const { user } = useCurrentUser();
   const { mutate: publishEvent, isPending } = useNostrPublish();
   const { hasNWC, webln } = useWallet();
@@ -84,7 +85,7 @@ export function GoalForm() {
   const hasWallet = hasNWC || !!webln;
 
   // Day selection: array of day indices (0=Sun..6=Sat), default none
-  const [selectedDays, setSelectedDays] = useState<number[]>([]);
+  const [selectedDays, setSelectedDays] = useState<number[]>(prefill?.days ?? []);
 
   const {
     register,
@@ -109,6 +110,18 @@ export function GoalForm() {
   const target = watch('target');
   const unit = watch('unit');
   const durationDays = watch('durationDays');
+
+  // Pre-fill form when a template is selected
+  useEffect(() => {
+    if (!prefill) return;
+    setValue('title', prefill.title);
+    setValue('category', prefill.category);
+    setValue('target', prefill.target);
+    setValue('unit', prefill.unit);
+    setValue('durationDays', prefill.durationDays);
+    setValue('pledgeSats', prefill.pledgeSats);
+    setSelectedDays(prefill.days);
+  }, [prefill?.title]); // Only re-run when template title changes
 
   const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const dayLabelsShort = ['Su', 'M', 'Tu', 'W', 'Th', 'F', 'Sa'];

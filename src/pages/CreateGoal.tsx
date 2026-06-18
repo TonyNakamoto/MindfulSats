@@ -1,57 +1,21 @@
 import { useSeoMeta } from '@unhead/react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { useSeoMeta } from '@unhead/react';
 import { GoalForm } from '@/components/GoalForm';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { TEMPLATES } from '@/lib/templates';
-import { useNostrPublish } from '@/hooks/useNostrPublish';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { GOAL_KIND } from '@/lib/goals';
+import { TEMPLATES, type GoalTemplate } from '@/lib/templates';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
-import { ArrowLeft, Brain, Zap, Sparkles } from 'lucide-react';
+import { ArrowLeft, Brain } from 'lucide-react';
 
 export function CreateGoal() {
-  const navigate = useNavigate();
-  const { user } = useCurrentUser();
-  const { mutate: publishEvent } = useNostrPublish();
+  const [selectedTemplate, setSelectedTemplate] = useState<GoalTemplate | undefined>();
 
   useSeoMeta({
     title: 'Create a Goal — MindfulSats',
     description: 'Set a new meditation goal with accountability deposits on Nostr.',
   });
-
-  const applyTemplate = (t: typeof TEMPLATES[number]) => {
-    if (!user) return;
-
-    const now = Math.floor(Date.now() / 1000);
-    const dTag = `goal-${now}-${Math.random().toString(36).slice(2, 8)}`;
-    const allDaysSelected = t.days.length === 7;
-    const daysTag = allDaysSelected ? undefined : t.days.join(',');
-
-    const tags: string[][] = [
-      ['d', dTag],
-      ['alt', 'Meditation goal with accountability deposit'],
-      ['title', t.title],
-      ['t', t.category],
-      ['t', 'mental-health'],
-      ['frequency', allDaysSelected ? 'daily' : 'custom'],
-      ['target', String(t.target)],
-      ['unit', t.unit],
-      ['duration_days', String(t.durationDays)],
-      ['pledge_msats', String(t.pledgeSats * 1000)],
-      ['start_date', String(now)],
-      ['status', 'active'],
-    ];
-
-    if (daysTag) tags.push(['days', daysTag]);
-
-    publishEvent(
-      { kind: GOAL_KIND, content: '', tags, created_at: now },
-      { onSuccess: (event) => navigate(`/goal/${event.pubkey}/${dTag}`) },
-    );
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -78,10 +42,10 @@ export function CreateGoal() {
         </div>
 
         {/* Quick template dropdown */}
-        <div className="mb-6 flex items-center gap-2">
-          <Select onValueChange={(i) => applyTemplate(TEMPLATES[parseInt(i)])}>
+        <div className="mb-6">
+          <Select onValueChange={(i) => setSelectedTemplate(TEMPLATES[parseInt(i)])}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Quick start: pick a template..." />
+              <SelectValue placeholder="Quick start: pick a template to pre-fill..." />
             </SelectTrigger>
             <SelectContent>
               {TEMPLATES.map((t, i) => (
@@ -99,7 +63,7 @@ export function CreateGoal() {
           </Select>
         </div>
 
-        <GoalForm />
+        <GoalForm prefill={selectedTemplate} />
       </div>
     </div>
   );
