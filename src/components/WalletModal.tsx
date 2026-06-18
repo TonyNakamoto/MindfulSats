@@ -77,6 +77,7 @@ const WalletContent = ({
   activeConnection,
   handleSetActive,
   handleRemoveConnection,
+  handleEnableWebLN,
   setAddDialogOpen,
   ref,
 }: {
@@ -87,6 +88,7 @@ const WalletContent = ({
   activeConnection: string | null;
   handleSetActive: (cs: string) => void;
   handleRemoveConnection: (cs: string) => void;
+  handleEnableWebLN: () => void;
   setAddDialogOpen: (open: boolean) => void;
   ref?: React.Ref<HTMLDivElement>;
 }) => (
@@ -301,6 +303,7 @@ export function WalletModal({ children, className }: WalletModalProps) {
     activeConnection,
     handleSetActive,
     handleRemoveConnection,
+    handleEnableWebLN,
     setAddDialogOpen,
   };
 
