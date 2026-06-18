@@ -316,7 +316,7 @@ export function GoalForm({ prefill }: { prefill?: GoalTemplate }) {
 
             <div className="space-y-2">
               <Label htmlFor="unit">Unit</Label>
-              <Select onValueChange={(v) => setValue('unit', v)} defaultValue="minutes">
+              <Select onValueChange={(v) => setValue('unit', v)} value={unit}>
                 <SelectTrigger id="unit">
                   <SelectValue placeholder="Select unit" />
                 </SelectTrigger>
